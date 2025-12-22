@@ -80,6 +80,7 @@ export function TopBar({
         <header
             className={cn(
                 "fixed top-0 left-0 right-0 z-50 h-14 md:h-16 flex items-center justify-between px-4 md:px-6 transition-all",
+                "md:left-64", // Offset para sidebar em desktop
                 scrolled
                     ? "bg-[var(--bg-primary)]/90 backdrop-blur-xl border-b border-[var(--border-subtle)]"
                     : "bg-transparent"

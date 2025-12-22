@@ -313,46 +313,49 @@ export default function StatsPage() {
                     </div>
                 </div>
 
-                {/* Gráfico Donut */}
-                <div
-                    className="p-5 rounded-2xl"
-                    style={{ backgroundColor: 'var(--bg-secondary)' }}
-                >
-                    <h3
-                        className="font-semibold mb-4"
-                        style={{ color: 'var(--text-primary)' }}
+                {/* Grid responsivo para gráficos - 2 colunas em desktop */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Gráfico Donut */}
+                    <div
+                        className="p-5 rounded-2xl"
+                        style={{ backgroundColor: 'var(--bg-secondary)' }}
                     >
-                        Por Categoria
-                    </h3>
+                        <h3
+                            className="font-semibold mb-4"
+                            style={{ color: 'var(--text-primary)' }}
+                        >
+                            Por Categoria
+                        </h3>
 
-                    <CategoryDonut
-                        data={categoryData}
-                        totalValue={currentTotal}
-                        centerLabel={viewType === 'expenses' ? 'Despesas' : 'Receitas'}
-                    />
+                        <CategoryDonut
+                            data={categoryData}
+                            totalValue={currentTotal}
+                            centerLabel={viewType === 'expenses' ? 'Despesas' : 'Receitas'}
+                        />
 
-                    <CategoryLegend
-                        data={categoryData}
-                        className="mt-4"
-                    />
-                </div>
+                        <CategoryLegend
+                            data={categoryData}
+                            className="mt-4"
+                        />
+                    </div>
 
-                {/* Gráfico de Evolução */}
-                <div
-                    className="p-5 rounded-2xl"
-                    style={{ backgroundColor: 'var(--bg-secondary)' }}
-                >
-                    <h3
-                        className="font-semibold mb-4"
-                        style={{ color: 'var(--text-primary)' }}
+                    {/* Gráfico de Evolução */}
+                    <div
+                        className="p-5 rounded-2xl"
+                        style={{ backgroundColor: 'var(--bg-secondary)' }}
                     >
-                        Evolução (6 meses)
-                    </h3>
+                        <h3
+                            className="font-semibold mb-4"
+                            style={{ color: 'var(--text-primary)' }}
+                        >
+                            Evolução (6 meses)
+                        </h3>
 
-                    <EvolutionChart
-                        data={evolutionData}
-                        type={viewType === 'expenses' ? 'expense' : 'income'}
-                    />
+                        <EvolutionChart
+                            data={evolutionData}
+                            type={viewType === 'expenses' ? 'expense' : 'income'}
+                        />
+                    </div>
                 </div>
             </PageContainer>
 

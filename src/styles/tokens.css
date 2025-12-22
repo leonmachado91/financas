@@ -139,6 +139,8 @@
   --topbar-height: 3.5rem;      /* 56px mobile */
   --topbar-height-lg: 4rem;     /* 64px desktop */
   --bottomnav-height: 4rem;     /* 64px */
+  --sidebar-width: 16rem;       /* 256px */
+  --sidebar-width-collapsed: 4.5rem; /* 72px */
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-top: env(safe-area-inset-top, 0px);
 }

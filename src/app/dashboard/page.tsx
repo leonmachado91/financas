@@ -4,9 +4,11 @@ import { BalanceCard } from '@/components/dashboard/BalanceCardNew';
 import { CategoryGrid } from '@/components/dashboard/CategoryGrid';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { TransactionGroup, TransactionRow, TransactionRowData } from '@/components/dashboard/TransactionRowNew';
+import { TransactionTable } from '@/components/dashboard/TransactionTable';
 import { AppShell, BottomNav, PageContainer, TopBar } from '@/components/layout';
 import { EmptyState } from '@/components/shared';
 import { TransactionSheet } from '@/components/transaction/TransactionSheet';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useCategories } from '@/hooks/useCategories';
 import { useTransactionMutations, useTransactionsByMonth } from '@/hooks/useTransactions';
 import { mapProfileToDb } from '@/services/transactionsService';
@@ -109,6 +111,9 @@ export default function DashboardPage() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [sheetType, setSheetType] = useState<'income' | 'expense'>('expense');
     const [sheetMode, setSheetMode] = useState<'add' | 'edit'>('add');
+
+    // Responsividade
+    const isMobile = useIsMobile();
 
     // Definir data no cliente para evitar diferença servidor/cliente
     useEffect(() => {
@@ -381,7 +386,8 @@ export default function DashboardPage() {
                             actionLabel="Adicionar"
                             onAction={() => openAddSheet('expense')}
                         />
-                    ) : (
+                    ) : isMobile ? (
+                        // Mobile: Lista agrupada por data com swipe gestures
                         groupedTransactions.map((group) => (
                             <TransactionGroup
                                 key={group.label}
@@ -392,6 +398,17 @@ export default function DashboardPage() {
                                 onDelete={handleDeleteTransaction}
                             />
                         ))
+                    ) : (
+                        // Desktop: Tabela com todas as transações
+                        <TransactionTable
+                            transactions={filteredTransactions.map(t => ({
+                                ...t,
+                                date: t.timestamp,
+                            }))}
+                            onEdit={openEditSheet}
+                            onDelete={handleDeleteTransaction}
+                            onTogglePaid={handleTogglePaid}
+                        />
                     )}
                 </div>
             </PageContainer>

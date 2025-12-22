@@ -66,44 +66,47 @@ export default function SettingsPage() {
             <TopBar title="Configurações" />
 
             <PageContainer className="space-y-6">
-                {/* Perfil Section */}
-                <div
-                    className="rounded-2xl overflow-hidden"
-                    style={{ backgroundColor: 'var(--bg-secondary)' }}
-                >
-                    <SettingsItem
-                        icon={User}
-                        label="Perfil"
-                        description="Leonardo & Flávia"
-                    />
-                </div>
-
-                {/* Dados Section */}
-                <div>
-                    <h2
-                        className="text-sm font-semibold mb-3 px-1"
-                        style={{ color: 'var(--text-tertiary)' }}
-                    >
-                        DADOS
-                    </h2>
+                {/* Grid responsivo - 2 colunas em desktop */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                    {/* Perfil Section */}
                     <div
-                        className="rounded-2xl overflow-hidden divide-y"
-                        style={{
-                            backgroundColor: 'var(--bg-secondary)',
-                            borderColor: 'var(--border-subtle)',
-                        }}
+                        className="rounded-2xl overflow-hidden"
+                        style={{ backgroundColor: 'var(--bg-secondary)' }}
                     >
                         <SettingsItem
-                            icon={FolderOpen}
-                            label="Categorias"
-                            description="Organize suas transações"
-                            badge={`${categories.length}`}
+                            icon={User}
+                            label="Perfil"
+                            description="Leonardo & Flávia"
                         />
-                        <SettingsItem
-                            icon={CreditCard}
-                            label="Métodos de Pagamento"
-                            description="Cartões, Pix, Dinheiro"
-                        />
+                    </div>
+
+                    {/* Dados Section */}
+                    <div>
+                        <h2
+                            className="text-sm font-semibold mb-3 px-1"
+                            style={{ color: 'var(--text-tertiary)' }}
+                        >
+                            DADOS
+                        </h2>
+                        <div
+                            className="rounded-2xl overflow-hidden divide-y"
+                            style={{
+                                backgroundColor: 'var(--bg-secondary)',
+                                borderColor: 'var(--border-subtle)',
+                            }}
+                        >
+                            <SettingsItem
+                                icon={FolderOpen}
+                                label="Categorias"
+                                description="Organize suas transações"
+                                badge={`${categories.length}`}
+                            />
+                            <SettingsItem
+                                icon={CreditCard}
+                                label="Métodos de Pagamento"
+                                description="Cartões, Pix, Dinheiro"
+                            />
+                        </div>
                     </div>
                 </div>
 
