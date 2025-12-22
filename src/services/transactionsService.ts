@@ -1,6 +1,21 @@
 import { supabase } from '@/supabase-clients/client';
 import { Transaction } from '@/types';
 
+// Mapeia profile do banco (com acento) para o tipo TypeScript (sem acento)
+function mapTransaction(data: unknown): Transaction {
+  const row = data as Record<string, unknown>;
+  return {
+    ...row,
+    profile: row.profile === 'Flávia' ? 'Flavia' : row.profile,
+  } as Transaction;
+}
+
+// Converte profile do tipo TypeScript para o formato do banco
+export function mapProfileToDb(profile: 'Leonardo' | 'Flavia' | null): 'Leonardo' | 'Flávia' | null {
+  if (profile === 'Flavia') return 'Flávia';
+  return profile;
+}
+
 export const transactionsService = {
   async getByMonth(month: number, year: number) {
     const startDate = new Date(year, month, 1).toISOString();
@@ -16,7 +31,7 @@ export const transactionsService = {
     if (error) {
         throw error;
     }
-    return data as Transaction[];
+    return (data ?? []).map(mapTransaction);
   },
 
   async getOverdue() {
@@ -31,7 +46,7 @@ export const transactionsService = {
     if (error) {
         throw error;
     }
-    return data as Transaction[];
+    return (data ?? []).map(mapTransaction);
   },
 
   async create(transaction: Omit<Transaction, 'id' | 'created_at' | 'user_id'>) {

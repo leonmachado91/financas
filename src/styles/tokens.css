@@ -1,0 +1,223 @@
+/* ========================================
+   DESIGN TOKENS - App Finanças
+   ======================================== */
+
+:root {
+  /* ===== BACKGROUNDS ===== */
+  --bg-primary: #0A0A0B;
+  --bg-secondary: #111113;
+  --bg-tertiary: #1A1A1D;
+  --bg-elevated: #222225;
+  --bg-hover: #2A2A2D;
+
+  /* ===== ACCENT - LIME (Primary Brand) ===== */
+  --accent-lime: #BFFF00;
+  --accent-lime-muted: #9ECC00;
+  --accent-lime-dark: #7A9E00;
+  --accent-lime-glow: rgba(191, 255, 0, 0.15);
+  --accent-lime-border: rgba(191, 255, 0, 0.3);
+
+  /* ===== SEMANTIC COLORS ===== */
+  --accent-success: #22C55E;
+  --accent-success-muted: #16A34A;
+  --accent-success-bg: rgba(34, 197, 94, 0.12);
+
+  --accent-danger: #EF4444;
+  --accent-danger-muted: #DC2626;
+  --accent-danger-bg: rgba(239, 68, 68, 0.12);
+
+  --accent-warning: #F59E0B;
+  --accent-warning-muted: #D97706;
+  --accent-warning-bg: rgba(245, 158, 11, 0.12);
+
+  --accent-info: #3B82F6;
+  --accent-info-muted: #2563EB;
+  --accent-info-bg: rgba(59, 130, 246, 0.12);
+
+  /* ===== CATEGORY COLORS ===== */
+  --cat-blue: #3B82F6;
+  --cat-purple: #A855F7;
+  --cat-pink: #EC4899;
+  --cat-orange: #F97316;
+  --cat-cyan: #06B6D4;
+  --cat-yellow: #EAB308;
+  --cat-green: #22C55E;
+  --cat-red: #EF4444;
+  --cat-indigo: #6366F1;
+  --cat-teal: #14B8A6;
+
+  /* ===== TEXT ===== */
+  --text-primary: #FFFFFF;
+  --text-secondary: #A1A1AA;
+  --text-tertiary: #71717A;
+  --text-muted: #52525B;
+  --text-disabled: #3F3F46;
+
+  /* ===== BORDERS ===== */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.20);
+
+  /* ===== GRADIENTS ===== */
+  --gradient-lime: linear-gradient(135deg, #BFFF00 0%, #7CB518 100%);
+  --gradient-lime-subtle: linear-gradient(135deg, rgba(191, 255, 0, 0.2) 0%, rgba(124, 181, 24, 0.1) 100%);
+  --gradient-success: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+  --gradient-danger: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  --gradient-card: linear-gradient(180deg, #1A1A1D 0%, #111113 100%);
+  --gradient-hero: linear-gradient(135deg, #BFFF00 0%, #22C55E 50%, #16A34A 100%);
+
+  /* ===== TYPOGRAPHY ===== */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  --text-xs: 0.6875rem;    /* 11px */
+  --text-sm: 0.8125rem;    /* 13px */
+  --text-base: 0.9375rem;  /* 15px */
+  --text-lg: 1.0625rem;    /* 17px */
+  --text-xl: 1.25rem;      /* 20px */
+  --text-2xl: 1.5rem;      /* 24px */
+  --text-3xl: 2rem;        /* 32px */
+  --text-4xl: 2.5rem;      /* 40px */
+  --text-5xl: 3rem;        /* 48px */
+
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  /* ===== SPACING (4px base) ===== */
+  --space-0: 0;
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+
+  /* ===== RADIUS ===== */
+  --radius-sm: 0.5rem;    /* 8px */
+  --radius-md: 0.75rem;   /* 12px */
+  --radius-lg: 1rem;      /* 16px */
+  --radius-xl: 1.25rem;   /* 20px */
+  --radius-2xl: 1.5rem;   /* 24px */
+  --radius-3xl: 2rem;     /* 32px */
+  --radius-full: 9999px;
+
+  /* ===== SHADOWS ===== */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5);
+  --shadow-lime: 0 4px 20px rgba(191, 255, 0, 0.25);
+  --shadow-success: 0 4px 20px rgba(34, 197, 94, 0.25);
+  --shadow-danger: 0 4px 20px rgba(239, 68, 68, 0.25);
+
+  /* ===== TRANSITIONS ===== */
+  --transition-fast: 150ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 300ms ease;
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ===== Z-INDEX ===== */
+  --z-base: 0;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-modal-backdrop: 40;
+  --z-modal: 50;
+  --z-popover: 60;
+  --z-tooltip: 70;
+
+  /* ===== LAYOUT ===== */
+  --topbar-height: 3.5rem;      /* 56px mobile */
+  --topbar-height-lg: 4rem;     /* 64px desktop */
+  --bottomnav-height: 4rem;     /* 64px */
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-top: env(safe-area-inset-top, 0px);
+}
+
+/* ===== UTILITY CLASSES ===== */
+
+/* Text Colors */
+.text-lime { color: var(--accent-lime); }
+.text-success { color: var(--accent-success); }
+.text-danger { color: var(--accent-danger); }
+.text-warning { color: var(--accent-warning); }
+.text-info { color: var(--accent-info); }
+
+/* Background Colors */
+.bg-primary { background-color: var(--bg-primary); }
+.bg-secondary { background-color: var(--bg-secondary); }
+.bg-tertiary { background-color: var(--bg-tertiary); }
+.bg-elevated { background-color: var(--bg-elevated); }
+
+/* Gradients */
+.gradient-lime { background: var(--gradient-lime); }
+.gradient-hero { background: var(--gradient-hero); }
+.gradient-success { background: var(--gradient-success); }
+.gradient-danger { background: var(--gradient-danger); }
+
+/* Glow Effects */
+.glow-lime {
+  box-shadow: var(--shadow-lime);
+}
+
+.glow-success {
+  box-shadow: var(--shadow-success);
+}
+
+.glow-danger {
+  box-shadow: var(--shadow-danger);
+}
+
+/* Glass Effect */
+.glass {
+  background: rgba(26, 26, 29, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Card Base */
+.card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+}
+
+.card-elevated {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+}
+
+/* Interactive States */
+.interactive {
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.interactive:hover {
+  background-color: var(--bg-hover);
+}
+
+.interactive:active {
+  transform: scale(0.98);
+}
+
+/* Safe Area Padding */
+.safe-top {
+  padding-top: var(--safe-area-top);
+}
+
+.safe-bottom {
+  padding-bottom: calc(var(--bottomnav-height) + var(--safe-area-bottom));
+}

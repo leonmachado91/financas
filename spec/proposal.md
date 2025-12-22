@@ -1,186 +1,222 @@
-# Proposta de Finalização - App Finanças
+# Refatoração UI/UX Responsivo - Desktop + Mobile
 
-## Resumo
+## Contexto
 
-Esta proposta detalha as tarefas restantes para concluir o MVP do aplicativo Finanças, conforme o roadmap original e a especificação funcional. O objetivo é polir a interface, adicionar funcionalidades menores faltantes, e preparar para deploy.
+O app Finanças passou por uma refatoração mobile-first que deixou a versão desktop ineficiente. 
+A versão atual exibe o layout mobile esticado em telas grandes, sem aproveitar o espaço horizontal.
 
----
-
-## Itens Pendentes do Roadmap
-
-| Fase | Item | Status |
-|------|------|--------|
-| 2.5 | Páginas de Gerenciamento | Parcial* |
-| 3.1 | Revisão Visual | Pendente |
-| 3.2 | Empty States e Loading | Pendente |
-| 3.3 | Responsividade Mobile | Pendente |
-| 4.x | Testes e Correções | Pendente |
-| 5.x | Deploy | Pendente |
-
-*\*Categorias e Formas de Pagamento existem no SettingsDialog, mas não como páginas dedicadas.*
+### Problema Identificado
+- **Mobile atual**: Visual moderno com design tokens corretos, swipe gestures, BottomNav
+- **Desktop antigo**: Layout com Sidebar + Grid, mas visual desatualizado (cores e estilos diferentes)
+- **Desktop atual**: Inexistente - apenas mobile esticado
 
 ---
 
-## Propostas de Mudança
+## Objetivo
 
-### Fase 1: Polimento de UI/UX
-
-#### 1.1 Empty States
-
-Adicionar mensagens amigáveis quando listas estão vazias.
-
-##### [MODIFY] [TransactionList.tsx](file:///e:/Andamento/Webapps/Finanças/src/components/dashboard/TransactionList.tsx)
-
-- Quando `items.length === 0`, exibir mensagem contextual:
-  - Receitas: "Nenhuma receita registrada este mês"
-  - Despesas: "Nenhuma despesa registrada este mês"
-  - Atrasados: "🎉 Nenhuma pendência! Tudo em dia."
-
-#### 1.2 Exibir Responsável na Lista
-
-O campo `profile` existe mas não é exibido na `TransactionList`.
-
-##### [MODIFY] [TransactionList.tsx](file:///e:/Andamento/Webapps/Finanças/src/components/dashboard/TransactionList.tsx)
-
-- Adicionar campo `profileName` na interface `TransactionItem`
-- Exibir badge com nome do responsável (Leonardo/Flávia) ao lado da categoria
-
-##### [MODIFY] [page.tsx](file:///e:/Andamento/Webapps/Finanças/src/app/dashboard/page.tsx)
-
-- Atualizar `mapToItem` para incluir `profileName` da transação
-
-#### 1.3 Campo "Pago" no Formulário
-
-Permitir criar transações já pagas (útil para lançamentos retroativos).
-
-##### [MODIFY] [AddTransactionDialog.tsx](file:///e:/Andamento/Webapps/Finanças/src/components/dashboard/AddTransactionDialog.tsx)
-
-- Adicionar checkbox "Já foi paga" no formulário
-- Atualizar schema e serviço para enviar `status: 'paid'`
-
-##### [MODIFY] [EditTransactionDialog.tsx](file:///e:/Andamento/Webapps/Finanças/src/components/dashboard/EditTransactionDialog.tsx)
-
-- Adicionar checkbox "Paga" para edição
+Criar uma experiência **unificada e profissional** para ambas as plataformas:
+1. Manter o visual moderno da versão mobile como base
+2. Adaptar layout para desktop com melhor aproveitamento de espaço
+3. Unificar componentes para usar os mesmos design tokens
+4. Identificar funcionalidades incompletas para implementação posterior
 
 ---
 
-### Fase 2: Responsividade Mobile
+## Inventário de Componentes
 
-#### 2.1 Sidebar Colapsável
+### ✅ Componentes Mobile Modernos (MANTER)
+| Componente | Status | Descrição |
+|------------|--------|-----------|
+| `TopBar.tsx` | ✅ Bom | Header compacto com perfil e blur |
+| `BottomNav.tsx` | ✅ Mobile only | Navegação inferior com FAB |
+| `BalanceCardNew.tsx` | ✅ Bom | Card hero com month picker integrado |
+| `TransactionRowNew.tsx` | ✅ Bom | Linha com ícones, swipe gestures |
+| `QuickActions.tsx` | ✅ Bom | Botões receita/despesa |
+| `CategoryGrid.tsx` | ✅ Bom | Grid de filtros por categoria |
+| `TransactionSheet.tsx` | ✅ Bom | Bottom sheet para add/edit |
+| `EmptyState.tsx` | ✅ Bom | Estados vazios animados |
 
-##### [MODIFY] [Sidebar.tsx](file:///e:/Andamento/Webapps/Finanças/src/components/dashboard/Sidebar.tsx)
+### ⚠️ Componentes Desktop Antigos (ADAPTAR OU SUBSTITUIR)
+| Componente | Status | Ação |
+|------------|--------|------|
+| `Sidebar.tsx` (dashboard) | ⚠️ Visual antigo | Atualizar visual para novos tokens |
+| `Header.tsx` | ❌ Obsoleto | Remover - usar TopBar |
+| `BalanceCard.tsx` | ❌ Obsoleto | Remover - usar BalanceCardNew |
+| `TransactionList.tsx` | ⚠️ Funcional | Atualizar visual ou criar versão desktop |
+| `MonthSelector.tsx` | ⚠️ Híbrido | Já tem adaptações md:, avaliar uso |
+| `page-old.tsx` | 📦 Backup | Referência de layout desktop |
 
-- Em telas pequenas (`md:hidden`): ocultar sidebar e mostrar botão hambúrguer
-- Usar Sheet do shadcn/ui para sidebar mobile
-
-#### 2.2 Layout do Dashboard
-
-##### [MODIFY] [page.tsx](file:///e:/Andamento/Webapps/Finanças/src/app/dashboard/page.tsx)
-
-- BalanceCard: `grid-cols-1` em mobile, `grid-cols-3` em desktop
-- TransactionLists: `flex-col` em mobile, lado a lado em desktop
-
-#### 2.3 Seletor de Mês
-
-##### [MODIFY] [MonthSelector.tsx](file:///e:/Andamento/Webapps/Finanças/src/components/dashboard/MonthSelector.tsx)
-
-- Scroll horizontal com snap em mobile
-- Botões de seta para navegação
-
----
-
-### Fase 3: Páginas de Gerenciamento (Opcional)
-
-> ⚠️ **Nota:** Esta fase é opcional pois o gerenciamento já existe no SettingsDialog. Páginas dedicadas podem ser implementadas futuramente se necessário.
-
-#### 3.1 Página de Categorias
-
-##### [NEW] [categories/page.tsx](file:///e:/Andamento/Webapps/Finanças/src/app/categories/page.tsx)
-
-- Tabela com todas as categorias
-- Botões de editar e excluir em cada linha
-- Formulário de adicionar
-
-#### 3.2 Página de Formas de Pagamento
-
-##### [NEW] [payment-methods/page.tsx](file:///e:/Andamento/Webapps/Finanças/src/app/payment-methods/page.tsx)
-
-- Similar à página de categorias
+### 📦 Componentes UI Shadcn (DISPONÍVEIS)
+| Componente | Uso |
+|------------|-----|
+| `sidebar.tsx` (ui) | Sistema completo de sidebar shadcn |
+| `sheet.tsx` | Para menus mobile |
+| `dialog.tsx` | Para modais desktop |
 
 ---
 
-### Fase 4: Testes e Correções
+## Arquitetura Proposta
 
-#### 4.1 Testes Manuais
+### Layout Master Responsivo
 
-Verificar os seguintes fluxos:
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        TopBar (fixo)                        │
+├──────────┬──────────────────────────────────────────────────┤
+│          │                                                   │
+│          │                                                   │
+│ Sidebar  │              Main Content                         │
+│ (desktop │                                                   │
+│  only)   │   ┌─────────────────┐ ┌─────────────────┐        │
+│          │   │  BalanceCard    │ │   Stats Card    │        │
+│   w-64   │   └─────────────────┘ └─────────────────┘        │
+│          │                                                   │
+│          │   ┌─────────────────────────────────────┐        │
+│          │   │        Transactions Table           │        │
+│          │   │        (desktop only)               │        │
+│          │   └─────────────────────────────────────┘        │
+│          │                                                   │
+├──────────┴──────────────────────────────────────────────────┤
+│                    BottomNav (mobile only)                   │
+└─────────────────────────────────────────────────────────────┘
+```
 
-| # | Fluxo | Passos |
-|---|-------|--------|
-| 1 | Criar transação | Abrir dialog → Preencher → Salvar → Verificar na lista |
-| 2 | Editar transação | Clicar lápis → Alterar → Salvar → Verificar alteração |
-| 3 | Excluir transação | Clicar lixeira → Confirmar → Verificar remoção |
-| 4 | Marcar como paga | Clicar checkbox → Verificar visual + atrasados |
-| 5 | Mudar mês | Clicar em outro mês → Verificar filtro |
-| 6 | Trocar perfil | Clicar no header → Verificar pré-preenchimento |
-| 7 | Gerenciar categorias | Abrir Settings → Adicionar/Excluir categoria |
-| 8 | Gerenciar pagamentos | Abrir Settings → Adicionar/Excluir forma |
-
-#### 4.2 Correção de Bugs
-
-- Corrigir qualquer bug identificado nos testes
-
----
-
-### Fase 5: Deploy
-
-#### 5.1 Preparação
-
-- Verificar variáveis de ambiente de produção
-- Configurar Supabase produção (se diferente de desenvolvimento)
-
-#### 5.2 Vercel
-
-##### Configuração
-
-1. Conectar repositório ao Vercel
-2. Adicionar variáveis de ambiente:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-3. Deploy automático
-
-#### 5.3 Validação
-
-- Testar todos os fluxos em produção
+### Breakpoints
+- `< 768px (mobile)`: BottomNav + Layout vertical
+- `>= 768px (md)`: Sidebar + Layout horizontal
+- `>= 1280px (xl)`: Sidebar expandida + Grid 2-3 colunas
 
 ---
 
-## Priorização
+## Mudanças Propostas
 
-| Fase | Descrição | Esforço | Prioridade |
-|------|-----------|---------|------------|
-| 1.1 | Empty States | 30min | Alta |
-| 1.2 | Exibir Responsável | 30min | Média |
-| 1.3 | Campo Pago no Form | 30min | Média |
-| 2.x | Responsividade | 2h | Média |
-| 3.x | Páginas Gerenciamento | 2h | Baixa |
-| 4.x | Testes | 1h | Alta |
-| 5.x | Deploy | 30min | Alta |
-| **Total** | | **~7h** | |
+### 1. Layout Container (`AppShell`)
+**Arquivo**: `src/components/layout/AppShell.tsx`
+
+Adicionar lógica para:
+- Detectar breakpoint
+- Renderizar Sidebar em desktop
+- Ajustar padding-left quando Sidebar visível
+
+### 2. Nova Sidebar Desktop
+**Arquivo**: `src/components/layout/DesktopSidebar.tsx` (NOVO)
+
+Criar sidebar moderna com:
+- Visual alinhado aos novos tokens (--bg-secondary, --accent-lime)
+- Links: Dashboard, Estatísticas, Configurações
+- Logo/Branding no topo
+- Perfil/Logout no rodapé
+- Animação de collapse (icon-only mode)
+
+### 3. Dashboard Page Responsivo
+**Arquivo**: `src/app/dashboard/page.tsx`
+
+Alterar layout para:
+- Mobile: Layout atual (vertical)
+- Desktop: Grid com sidebar + conteúdo em colunas
+- Transações em tabela (desktop) vs lista (mobile)
+
+### 4. Componente TransactionTable (NOVO)
+**Arquivo**: `src/components/dashboard/TransactionTable.tsx`
+
+Criar versão tabular para desktop com:
+- Colunas: Status | Descrição | Categoria | Responsável | Data | Valor | Ações
+- Hover actions (edit/delete)
+- Sorting e filtros inline
+- Mesmos tokens visuais
+
+### 5. Stats Page Responsivo
+**Arquivo**: `src/app/stats/page.tsx`
+
+Alterar layout para:
+- Mobile: Layout atual (vertical)
+- Desktop: Grid 2 colunas (gráficos lado a lado)
+
+### 6. Settings Page Responsivo
+**Arquivo**: `src/app/settings/page.tsx`
+
+Alterar layout para:
+- Mobile: Lista vertical
+- Desktop: Grid com seções em cards
 
 ---
 
-## Recomendação
+## Funcionalidades Incompletas Identificadas
 
-1. **Prioridade Imediata:** Empty states + Testes manuais
-2. **Pode esperar:** Responsividade mobile, páginas dedicadas
-3. **Quando pronto:** Deploy
+### 🔴 Alta Prioridade
+| Funcionalidade | Arquivo | Problema |
+|----------------|---------|----------|
+| Estatísticas de evolução | `stats/page.tsx` | Usa dados MOCK (`Math.random()`) |
+| Comparação período anterior | `stats/page.tsx` | Usa dados MOCK |
+| Métodos de pagamento | `TransactionSheet.tsx` | Lista vazia (não busca do DB) |
+| Gerenciar categorias | `settings/page.tsx` | Links não funcionam |
+| Gerenciar métodos pagamento | `settings/page.tsx` | Links não funcionam |
+| Logout | `TopBar.tsx` / `Sidebar.tsx` | Botão não implementado |
+| Notificações | `TopBar.tsx` | Badge fake, sem funcionalidade |
+
+### 🟡 Média Prioridade
+| Funcionalidade | Arquivo | Problema |
+|----------------|---------|----------|
+| Definir meta | `QuickActions.tsx` | Callback existe mas sem implementação |
+| Filtro por perfil | N/A | Não existe, apenas visual no TopBar |
+| Toggle período anual | `stats/page.tsx` | Botão existe mas não altera dados |
+| Excluir transação confirmação | `page.tsx` | Não há ConfirmDialog integrado |
+
+### 🟢 Baixa Prioridade
+| Funcionalidade | Arquivo | Problema |
+|----------------|---------|----------|
+| Tema claro | `globals.css` | Definido mas não há toggle |
+| Exportar dados | N/A | Não implementado |
+| Histórico/Backup | N/A | Não implementado |
 
 ---
 
-## Fora do Escopo
+## Arquivos a Criar/Modificar
 
-- Sistema de autenticação
-- Relatórios e gráficos
-- Aplicativo móvel nativo
-- Notificações push
+### Novos Arquivos
+1. `src/components/layout/DesktopSidebar.tsx` - Sidebar moderna desktop
+2. `src/components/dashboard/TransactionTable.tsx` - Tabela desktop
+3. `src/hooks/useMediaQuery.ts` - Hook para detectar breakpoints (se não existir)
+
+### Arquivos a Modificar
+1. `src/components/layout/AppShell.tsx` - Integrar sidebar
+2. `src/components/layout/index.ts` - Exportar novos componentes
+3. `src/app/dashboard/page.tsx` - Layout responsivo
+4. `src/app/stats/page.tsx` - Layout responsivo
+5. `src/app/settings/page.tsx` - Layout responsivo
+6. `src/styles/tokens.css` - Tokens de sidebar
+
+### Arquivos a Remover (Limpeza)
+1. `src/app/dashboard/page-old.tsx` - Backup obsoleto
+2. `src/components/dashboard/Header.tsx` - Substituído por TopBar
+3. `src/components/dashboard/BalanceCard.tsx` - Substituído por BalanceCardNew
+
+---
+
+## Plano de Verificação
+
+### Testes Visuais
+- [ ] Mobile (< 768px): BottomNav visível, Sidebar oculta
+- [ ] Tablet (768px-1024px): Sidebar collapsed, layout adaptado
+- [ ] Desktop (> 1024px): Sidebar expandida, grid columns
+- [ ] Dark mode consistente em todos os breakpoints
+
+### Testes Funcionais
+- [ ] Navegação entre páginas via Sidebar (desktop)
+- [ ] Navegação entre páginas via BottomNav (mobile)
+- [ ] Adicionar transação funciona em ambos
+- [ ] Editar transação funciona em ambos
+- [ ] Excluir transação funciona em ambos
+- [ ] Swipe gestures apenas em mobile
+
+---
+
+## Próximos Passos
+
+Após aprovação desta proposta:
+1. **Fase 1**: Criar estrutura de layout responsivo (AppShell + DesktopSidebar)
+2. **Fase 2**: Adaptar Dashboard para desktop
+3. **Fase 3**: Criar TransactionTable para desktop
+4. **Fase 4**: Adaptar Stats e Settings
+5. **Fase 5**: Limpeza de componentes obsoletos
+6. **Fase 6**: Implementar funcionalidades faltantes (separadamente)

@@ -1,106 +1,164 @@
-# Tarefas - Finalização do App Finanças
+# Refatoração UI/UX Responsivo - Lista de Tarefas
 
-## Fase 1: Polimento de UI/UX
-
-### 1.1 Empty States
-- [x] Adicionar empty state em `TransactionList.tsx` quando `items.length === 0`
-- [x] Mensagem para Receitas: "Nenhuma receita registrada este mês"
-- [x] Mensagem para Despesas: "Nenhuma despesa registrada este mês"
-- [x] Mensagem para Atrasados: "🎉 Nenhuma pendência! Tudo em dia."
-
-### 1.2 Exibir Responsável na Lista
-- [x] Adicionar `profileName` na interface `TransactionItem`
-- [x] Atualizar `mapToItem` em `page.tsx` para incluir `profileName`
-- [x] Exibir badge com responsável na `TransactionList`
-
-### 1.3 Campo "Pago" no Formulário
-- [x] Adicionar checkbox "Já foi paga" em `AddTransactionDialog.tsx`
-- [x] Adicionar campo `status` no schema Zod
-- [x] Atualizar `handleAddTransaction` para enviar status
-- [x] Adicionar checkbox "Paga" em `EditTransactionDialog.tsx`
+> **Objetivo**: Criar experiência desktop profissional unificada com visual mobile
 
 ---
 
-## Fase 2: Responsividade Mobile
+## Fase 1: Estrutura de Layout Responsivo
 
-### 2.1 Sidebar Colapsável
-- [x] Ocultar sidebar em mobile (`hidden md:flex`)
-- [x] Adicionar botão hambúrguer no header mobile
-- [x] Implementar Sheet (shadcn/ui) para navegação mobile
+### 1.1 Criar DesktopSidebar
+- [ ] Criar `src/components/layout/DesktopSidebar.tsx`
+  - [ ] Estrutura base com nav items (Dashboard, Stats, Settings)
+  - [ ] Aplicar design tokens modernos (`--bg-secondary`, `--accent-lime`)
+  - [ ] Logo/Brand no topo
+  - [ ] Seção de perfil no rodapé
+  - [ ] Estado collapsed para tablets (icon-only)
+  - [ ] Transições suaves
 
-### 2.2 Layout do Dashboard
-- [x] BalanceCard: `grid-cols-1 md:grid-cols-3`
-- [x] TransactionLists: `flex-col md:grid-cols-2`
-- [x] Ajustar padding e espaçamentos para mobile
+### 1.2 Atualizar AppShell
+- [ ] Modificar `src/components/layout/AppShell.tsx`
+  - [ ] Importar e renderizar DesktopSidebar
+  - [ ] Classe `md:pl-64` quando sidebar visível
+  - [ ] Prop para controlar sidebar expanded/collapsed
 
-### 2.3 Seletor de Mês
-- [x] Adicionar scroll horizontal com snap
-- [x] Testar navegação em touch devices
+### 1.3 Criar hook useMediaQuery
+- [ ] Verificar se `src/hooks/use-mobile.ts` é suficiente
+- [ ] Se não, criar hook genérico para breakpoints
 
----
-
-## Fase 3: Páginas de Gerenciamento (Opcional)
-
-### 3.1 Página de Categorias
-- [ ] Criar `src/app/categories/page.tsx`
-- [ ] Implementar tabela com categorias
-- [ ] Adicionar ações de editar/excluir
-- [ ] Adicionar link na Sidebar
-
-### 3.2 Página de Formas de Pagamento
-- [ ] Criar `src/app/payment-methods/page.tsx`
-- [ ] Implementar tabela com formas de pagamento
-- [ ] Adicionar ações de editar/excluir
-- [ ] Adicionar link na Sidebar
+### 1.4 Atualizar exports
+- [ ] Atualizar `src/components/layout/index.ts`
 
 ---
 
-## Fase 4: Testes e Correções
+## Fase 2: Dashboard Desktop
 
-### 4.1 Testes Manuais
-> ✅ Verificado via browser subagent em 2025-12-18
+### 2.1 Layout Responsivo do Dashboard
+- [ ] Modificar `src/app/dashboard/page.tsx`
+  - [ ] Mobile: manter layout vertical atual
+  - [ ] Desktop: criar grid 2 colunas (main + side)
+  - [ ] Collapsible sidebar de atalhos
 
-- [x] Testar: Criar transação (receita e despesa)
-- [x] Testar: Editar transação
-- [x] Testar: Excluir transação
-- [x] Testar: Marcar como paga
-- [x] Testar: Mudar mês no seletor
-- [x] Testar: Trocar perfil no header
-- [x] Testar: Gerenciar categorias (adicionar/excluir)
-- [x] Testar: Gerenciar formas de pagamento (adicionar/excluir)
-- [x] Testar: Filtro de atrasados (Dívidas/Pagamentos)
+### 2.2 BalanceCard Responsivo
+- [ ] Ajustar `src/components/dashboard/BalanceCardNew.tsx`
+  - [ ] Tamanho menor em desktop quando em grid
+  - [ ] Ou criar variante compacta
 
-### 4.2 Correção de Bugs
-- [x] Documentar bugs encontrados - Nenhum bug crítico identificado
-- [x] Corrigir bugs identificados - N/A
-- [x] Re-testar fluxos corrigidos - N/A
+### 2.3 QuickActions Responsivo
+- [ ] Ajustar `src/components/dashboard/QuickActions.tsx`
+  - [ ] Layout horizontal em desktop
+  - [ ] Ícones maiores com labels
 
 ---
 
-## Fase 5: Deploy
+## Fase 3: TransactionTable Desktop
 
-### 5.1 Preparação
-- [/] Verificar `.env.production` ou variáveis do Vercel
-- [/] Confirmar URL do Supabase de produção
-- [x] Build local: `pnpm build` sem erros
+### 3.1 Criar TransactionTable
+- [ ] Criar `src/components/dashboard/TransactionTable.tsx`
+  - [ ] Colunas: Checkbox | Descrição | Categoria | Responsável | Data | Valor | Ações
+  - [ ] Hover actions (edit, delete)
+  - [ ] Sorting por coluna
+  - [ ] Zebra striping ou divisors
 
-### 5.2 Deploy Vercel
-- [ ] Conectar repositório ao Vercel
-- [ ] Configurar variáveis de ambiente
-- [ ] Executar primeiro deploy
-- [ ] Verificar URL de produção
+### 3.2 Integrar no Dashboard
+- [ ] Modificar `src/app/dashboard/page.tsx`
+  - [ ] Renderizar `TransactionTable` em `md:` e acima
+  - [ ] Manter `TransactionGroup` apenas em mobile
 
-### 5.3 Validação em Produção
-- [ ] Testar fluxo completo em produção
-- [ ] Verificar conexão com Supabase
-- [ ] Confirmar dados persistindo corretamente
+### 3.3 Adaptar TransactionSheet para Desktop
+- [ ] Modificar/criar `src/components/transaction/TransactionDialog.tsx`
+  - [ ] Desktop: usar Dialog ao invés de Drawer
+  - [ ] Mobile: manter Drawer atual
+  - [ ] Componente wrapper que escolhe baseado em breakpoint
 
 ---
 
-## Verificação Final
+## Fase 4: Stats e Settings Desktop
 
-- [x] Todas as funcionalidades do brief implementadas
-- [x] Empty states exibindo corretamente
-- [x] Responsável exibido na lista
-- [x] Build passando sem erros
-- [ ] Deploy concluído e funcional
+### 4.1 Stats Page Responsivo
+- [ ] Modificar `src/app/stats/page.tsx`
+  - [ ] Desktop: grid 2 colunas para gráficos
+  - [ ] Cards de resumo em row horizontal
+  - [ ] Donut maior em desktop
+
+### 4.2 Settings Page Responsivo
+- [ ] Modificar `src/app/settings/page.tsx`
+  - [ ] Desktop: layout com cards em grid
+  - [ ] Seções visualmente separadas
+  - [ ] Breadcrumb navigation
+
+---
+
+## Fase 5: Limpeza e Polimento
+
+### 5.1 Remover Componentes Obsoletos
+- [ ] Deletar `src/app/dashboard/page-old.tsx`
+- [ ] Deletar `src/components/dashboard/Header.tsx`
+- [ ] Deletar `src/components/dashboard/BalanceCard.tsx` (versão antiga)
+- [ ] Revisar se `MonthSelector.tsx` ainda é usado
+
+### 5.2 Consolidar Sidebar
+- [ ] Avaliar se manter `src/components/dashboard/Sidebar.tsx`
+- [ ] Ou migrar funcionalidade para DesktopSidebar
+
+### 5.3 Tokenização Final
+- [ ] Revisar `src/styles/tokens.css`
+  - [ ] Adicionar tokens para sidebar width
+  - [ ] Tokens para breakpoints se necessário
+
+### 5.4 Testes Visuais
+- [ ] Testar em viewport 375px (mobile small)
+- [ ] Testar em viewport 768px (tablet)
+- [ ] Testar em viewport 1024px (desktop small)
+- [ ] Testar em viewport 1440px (desktop large)
+- [ ] Testar transições de breakpoint
+
+---
+
+## Fase 6: Funcionalidades Pendentes (Pós-Refatoração)
+
+> Estas tarefas serão tratadas após a refatoração de UI
+
+### 6.1 Dados Reais - Stats
+- [ ] Implementar query para buscar dados de múltiplos meses
+- [ ] Substituir `Math.random()` por dados reais
+- [ ] Comparação real com período anterior
+
+### 6.2 Settings Funcionais
+- [ ] Criar página/modal de Gerenciar Categorias
+- [ ] Criar página/modal de Gerenciar Métodos de Pagamento
+- [ ] CRUD completo para ambos
+
+### 6.3 Autenticação
+- [ ] Implementar logout funcional
+- [ ] Revisar fluxo de autenticação
+
+### 6.4 Métodos de Pagamento no Form
+- [ ] Buscar métodos de pagamento do DB
+- [ ] Popular select no TransactionSheet
+
+### 6.5 Notificações
+- [ ] Definir escopo de notificações
+- [ ] Implementar sistema básico
+
+---
+
+## Notas para Implementação
+
+### Ordem de Execução
+Execute as fases em ordem. Cada fase depende da anterior.
+
+### Commits Sugeridos
+- `feat(layout): add DesktopSidebar component`
+- `feat(layout): integrate responsive sidebar in AppShell`
+- `feat(dashboard): add desktop grid layout`
+- `feat(dashboard): add TransactionTable component`
+- `feat(stats): add responsive grid layout`
+- `feat(settings): add responsive card layout`
+- `chore: remove obsolete components`
+- `style: final polish and token adjustments`
+
+### Testes Prioritários
+1. Navegação sidebar ↔ bottomnav
+2. Adicionar transação em ambos os modos
+3. Listar transações (lista vs tabela)
+4. Responsividade dos gráficos
