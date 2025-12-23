@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from '@/lib/utils';
-import { BarChart3, ChevronLeft, ChevronRight, Home, LogOut, Settings } from 'lucide-react';
+import { BarChart3, Home, LogOut, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -71,19 +71,21 @@ export function DesktopSidebar({ className }: DesktopSidebarProps) {
                 borderColor: 'var(--border-subtle)',
             }}
         >
-            {/* Logo / Brand */}
+            {/* Logo / Brand - Clicável para toggle collapse */}
             <div className={cn(
                 "flex items-center gap-3 p-4 border-b",
                 isCollapsed && "justify-center"
             )}
                 style={{ borderColor: 'var(--border-subtle)' }}
             >
-                <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-black text-lg shrink-0"
+                <button
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-black text-lg shrink-0 transition-transform hover:scale-105 active:scale-95"
                     style={{ background: 'var(--gradient-lime)' }}
+                    title={isCollapsed ? 'Expandir menu' : 'Recolher menu'}
                 >
                     F
-                </div>
+                </button>
                 {!isCollapsed && (
                     <div className="flex flex-col">
                         <span className="font-bold text-[var(--text-primary)]">
@@ -110,30 +112,11 @@ export function DesktopSidebar({ className }: DesktopSidebarProps) {
                 ))}
             </nav>
 
-            {/* Footer: Collapse toggle + Logout */}
+            {/* Footer: Apenas Logout (removido botão Recolher) */}
             <div
-                className="p-3 border-t space-y-2"
+                className="p-3 border-t"
                 style={{ borderColor: 'var(--border-subtle)' }}
             >
-                {/* Collapse Toggle */}
-                <button
-                    onClick={() => setIsCollapsed(!isCollapsed)}
-                    className={cn(
-                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all",
-                        "text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]",
-                        isCollapsed && "justify-center"
-                    )}
-                >
-                    {isCollapsed ? (
-                        <ChevronRight className="w-5 h-5" />
-                    ) : (
-                        <>
-                            <ChevronLeft className="w-5 h-5" />
-                            <span className="font-medium text-sm">Recolher</span>
-                        </>
-                    )}
-                </button>
-
                 {/* Logout */}
                 <button
                     className={cn(

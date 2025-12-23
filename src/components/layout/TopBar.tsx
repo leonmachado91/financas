@@ -97,17 +97,23 @@ export function TopBar({
                         <ChevronLeft className="w-5 h-5" />
                     </button>
                 ) : (
-                    <div className="flex items-center gap-2">
-                        <div
-                            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-black text-sm"
-                            style={{ background: 'var(--gradient-lime)' }}
-                        >
-                            F
+                    <>
+                        {/* Logo apenas em mobile - em desktop está na sidebar */}
+                        <div className="flex items-center gap-2 md:hidden">
+                            <div
+                                className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-black text-sm"
+                                style={{ background: 'var(--gradient-lime)' }}
+                            >
+                                F
+                            </div>
                         </div>
-                        <span className="font-semibold text-[var(--text-primary)] hidden md:inline">
-                            Finanças
-                        </span>
-                    </div>
+                        {/* Título da página em desktop */}
+                        {title && (
+                            <h1 className="hidden md:block text-lg font-semibold text-[var(--text-primary)]">
+                                {title}
+                            </h1>
+                        )}
+                    </>
                 )}
             </div>
 

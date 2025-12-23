@@ -175,14 +175,15 @@ export function TransactionTable({
                     return (
                         <div
                             key={transaction.id}
+                            onClick={() => onEdit?.(transaction.id)}
                             className={cn(
-                                "grid grid-cols-[40px_1fr_140px_120px_120px_140px_60px] gap-4 px-4 py-3 items-center group transition-colors",
-                                "hover:bg-[var(--bg-hover)]",
+                                "grid grid-cols-[40px_1fr_140px_120px_120px_140px_60px] gap-4 px-4 py-3 items-center group transition-all cursor-pointer",
+                                "hover:bg-[var(--bg-hover)] active:bg-[var(--bg-tertiary)]",
                                 transaction.isPaid && "opacity-60"
                             )}
                         >
-                            {/* Checkbox */}
-                            <div>
+                            {/* Checkbox - stopPropagation para não abrir editor */}
+                            <div onClick={(e) => e.stopPropagation()}>
                                 <Checkbox
                                     checked={transaction.isPaid}
                                     onCheckedChange={() => onTogglePaid?.(transaction.id)}
@@ -256,8 +257,8 @@ export function TransactionTable({
                                 {formatCurrency(transaction.amount, transaction.type)}
                             </div>
 
-                            {/* Ações */}
-                            <div className="flex justify-end">
+                            {/* Ações - stopPropagation para dropdown funcionar */}
+                            <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger
                                         className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[var(--bg-tertiary)]"

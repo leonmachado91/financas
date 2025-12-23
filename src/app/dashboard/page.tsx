@@ -2,6 +2,9 @@
 
 import { BalanceCard } from '@/components/dashboard/BalanceCardNew';
 import { CategoryGrid } from '@/components/dashboard/CategoryGrid';
+import { CategoryTabs } from '@/components/dashboard/CategoryTabs';
+import { MiniStatsCard } from '@/components/dashboard/MiniStatsCard';
+import { OverdueAlert } from '@/components/dashboard/OverdueAlert';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { TransactionGroup, TransactionRow, TransactionRowData } from '@/components/dashboard/TransactionRowNew';
 import { TransactionTable } from '@/components/dashboard/TransactionTable';
@@ -10,9 +13,10 @@ import { EmptyState } from '@/components/shared';
 import { TransactionSheet } from '@/components/transaction/TransactionSheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useCategories } from '@/hooks/useCategories';
-import { useTransactionMutations, useTransactionsByMonth } from '@/hooks/useTransactions';
-import { mapProfileToDb } from '@/services/transactionsService';
+import { transactionKeys, useTransactionMutations, useTransactionsByMonth } from '@/hooks/useTransactions';
+import { mapProfileToDb, transactionsService } from '@/services/transactionsService';
 import { Transaction } from '@/types';
+import { useQueryClient } from '@tanstack/react-query';
 import { addMonths, format, isToday, isYesterday, parseISO, startOfDay, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -115,6 +119,9 @@ export default function DashboardPage() {
     // Responsividade
     const isMobile = useIsMobile();
 
+    // Query Client para prefetch
+    const queryClient = useQueryClient();
+
     // Definir data no cliente para evitar diferença servidor/cliente
     useEffect(() => {
         const now = new Date();
@@ -128,6 +135,32 @@ export default function DashboardPage() {
 
     const { data: transactions = [], isLoading } = useTransactionsByMonth(month, year);
     const { data: categories = [] } = useCategories();
+
+    // Prefetch de meses adjacentes para navegação instantânea
+    useEffect(() => {
+        if (!selectedMonth) return;
+
+        const currentMonth = selectedMonth.getMonth();
+        const currentYear = selectedMonth.getFullYear();
+
+        // Prefetch mês anterior
+        const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+        const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+        queryClient.prefetchQuery({
+            queryKey: transactionKeys.byMonth(prevMonth, prevYear),
+            queryFn: () => transactionsService.getByMonth(prevMonth, prevYear),
+            staleTime: 1000 * 60 * 5, // 5 minutos
+        });
+
+        // Prefetch próximo mês
+        const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+        const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+        queryClient.prefetchQuery({
+            queryKey: transactionKeys.byMonth(nextMonth, nextYear),
+            queryFn: () => transactionsService.getByMonth(nextMonth, nextYear),
+            staleTime: 1000 * 60 * 5,
+        });
+    }, [selectedMonth, queryClient]);
 
     // Mutations
     const { create, update, delete: deleteMutation, isLoading: isMutating } = useTransactionMutations();
@@ -324,43 +357,88 @@ export default function DashboardPage() {
 
     return (
         <AppShell>
-            <TopBar title="Finanças" />
+            <TopBar title="Dashboard" />
 
             <PageContainer className="space-y-6">
-                {/* Hero - Balance Card com navegação de mês */}
-                <BalanceCard
-                    balance={balance}
-                    income={income}
-                    expenses={expenses}
-                    selectedMonth={selectedMonth}
-                    onPreviousMonth={handlePreviousMonth}
-                    onNextMonth={handleNextMonth}
-                />
+                {/* === SEÇÃO HERO: Grid com BalanceCard + MiniStats === */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                    {/* Balance Card - ocupa 2 colunas em desktop */}
+                    <div className="md:col-span-2">
+                        <BalanceCard
+                            balance={balance}
+                            income={income}
+                            expenses={expenses}
+                            selectedMonth={selectedMonth}
+                            onPreviousMonth={handlePreviousMonth}
+                            onNextMonth={handleNextMonth}
+                        />
+                    </div>
 
-                {/* Quick Actions */}
-                <QuickActions
-                    onAddIncome={() => openAddSheet('income')}
-                    onAddExpense={() => openAddSheet('expense')}
-                />
+                    {/* Mini Stats - apenas desktop */}
+                    <div className="hidden md:block">
+                        <MiniStatsCard
+                            income={income}
+                            expenses={expenses}
+                            percentChange={percentChange}
+                        />
+                    </div>
+                </div>
 
-                {/* Atrasados - Collapsible */}
-                {overdueTransactions.length > 0 && (
+                {/* === SEÇÃO AÇÕES: Quick Actions + Alerta Atrasados === */}
+                <div className="flex flex-col md:flex-row md:items-center gap-4">
+                    {/* Quick Actions - mais compacto em desktop */}
+                    <QuickActions
+                        onAddIncome={() => openAddSheet('income')}
+                        onAddExpense={() => openAddSheet('expense')}
+                        className="md:flex-shrink-0"
+                    />
+
+                    {/* Alerta de Atrasados - compacto */}
+                    {overdueTransactions.length > 0 && (
+                        <OverdueAlert
+                            count={overdueTransactions.length}
+                            totalAmount={overdueTransactions.reduce((acc, t) => acc + t.amount, 0)}
+                            onClick={() => {
+                                // Scroll para seção de atrasados ou abrir modal
+                                if (overdueTransactions[0]) {
+                                    openEditSheet(overdueTransactions[0].id);
+                                }
+                            }}
+                            className="flex-1"
+                        />
+                    )}
+                </div>
+
+                {/* === Atrasados Expandido (apenas mobile) === */}
+                {isMobile && overdueTransactions.length > 0 && (
                     <OverdueSection
                         transactions={overdueTransactions}
                         onTransactionClick={openEditSheet}
                     />
                 )}
 
-                {/* Transações Agrupadas */}
+                {/* === SEÇÃO TRANSAÇÕES === */}
                 <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                    {/* Header com título e filtros */}
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                         <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
                             Transações
                         </h2>
+
+                        {/* Desktop: CategoryTabs inline */}
+                        {!isMobile && (
+                            <CategoryTabs
+                                categories={categories}
+                                selectedId={selectedCategoryId}
+                                onSelect={setSelectedCategoryId}
+                            />
+                        )}
+
+                        {/* Botão limpar filtro (se filtro ativo) */}
                         {selectedCategoryId && (
                             <button
                                 onClick={() => setSelectedCategoryId(null)}
-                                className="text-sm px-2 py-1 rounded-lg"
+                                className="text-sm px-3 py-1.5 rounded-lg md:ml-2"
                                 style={{
                                     color: 'var(--accent-lime)',
                                     backgroundColor: 'var(--accent-lime-bg)',
@@ -371,13 +449,16 @@ export default function DashboardPage() {
                         )}
                     </div>
 
-                    {/* Category Filter */}
-                    <CategoryGrid
-                        categories={categories}
-                        selectedId={selectedCategoryId}
-                        onSelect={setSelectedCategoryId}
-                    />
+                    {/* Mobile: CategoryGrid com ícones grandes */}
+                    {isMobile && (
+                        <CategoryGrid
+                            categories={categories}
+                            selectedId={selectedCategoryId}
+                            onSelect={setSelectedCategoryId}
+                        />
+                    )}
 
+                    {/* Lista/Tabela de Transações */}
                     {groupedTransactions.length === 0 ? (
                         <EmptyState
                             type="transactions"
@@ -413,7 +494,7 @@ export default function DashboardPage() {
                 </div>
             </PageContainer>
 
-            {/* Bottom Navigation */}
+            {/* Bottom Navigation - apenas mobile */}
             <BottomNav onAddClick={() => openAddSheet('expense')} />
 
             {/* Transaction Sheet */}

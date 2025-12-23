@@ -123,193 +123,174 @@ export default function StatsPage() {
             <TopBar title="Estatísticas" />
 
             <PageContainer className="space-y-6">
-                {/* Header com período */}
-                <div className="text-center space-y-3">
-                    <h1
-                        className="text-2xl font-bold capitalize"
-                        style={{ color: 'var(--text-primary)' }}
-                    >
-                        {periodType === 'month'
-                            ? format(selectedDate, 'MMMM yyyy', { locale: ptBR })
-                            : format(selectedDate, 'yyyy', { locale: ptBR })
-                        }
-                    </h1>
+                {/* === HEADER: Período e Toggle === */}
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    {/* Título e período */}
+                    <div className="flex items-center gap-4">
+                        <h1
+                            className="text-2xl font-bold capitalize"
+                            style={{ color: 'var(--text-primary)' }}
+                        >
+                            {periodType === 'month'
+                                ? format(selectedDate, 'MMMM yyyy', { locale: ptBR })
+                                : format(selectedDate, 'yyyy', { locale: ptBR })
+                            }
+                        </h1>
 
-                    {/* Toggle Mês/Ano */}
+                        {/* Toggle Mês/Ano - inline */}
+                        <div
+                            className="inline-flex p-1 rounded-lg"
+                            style={{ backgroundColor: 'var(--bg-tertiary)' }}
+                        >
+                            <button
+                                onClick={() => setPeriodType('month')}
+                                className={cn(
+                                    "px-3 py-1 rounded-md text-sm font-medium transition-all",
+                                    periodType === 'month' ? "shadow-sm" : "opacity-60"
+                                )}
+                                style={{
+                                    backgroundColor: periodType === 'month' ? 'var(--bg-secondary)' : 'transparent',
+                                    color: periodType === 'month' ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                                }}
+                            >
+                                Mês
+                            </button>
+                            <button
+                                onClick={() => setPeriodType('year')}
+                                className={cn(
+                                    "px-3 py-1 rounded-md text-sm font-medium transition-all",
+                                    periodType === 'year' ? "shadow-sm" : "opacity-60"
+                                )}
+                                style={{
+                                    backgroundColor: periodType === 'year' ? 'var(--bg-secondary)' : 'transparent',
+                                    color: periodType === 'year' ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                                }}
+                            >
+                                Ano
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Toggle Despesas/Receitas - compacto */}
                     <div
-                        className="inline-flex p-1 rounded-lg"
+                        className="inline-flex p-1 rounded-xl self-start md:self-auto"
                         style={{ backgroundColor: 'var(--bg-tertiary)' }}
                     >
                         <button
-                            onClick={() => setPeriodType('month')}
+                            onClick={() => setViewType('expenses')}
                             className={cn(
-                                "px-4 py-1.5 rounded-md text-sm font-medium transition-all",
-                                periodType === 'month'
-                                    ? "shadow-sm"
-                                    : "opacity-60"
+                                "flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all",
+                                viewType === 'expenses' ? "shadow-sm" : "opacity-60"
                             )}
                             style={{
-                                backgroundColor: periodType === 'month' ? 'var(--bg-secondary)' : 'transparent',
-                                color: periodType === 'month' ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                                backgroundColor: viewType === 'expenses' ? 'var(--accent-danger-bg)' : 'transparent',
+                                color: viewType === 'expenses' ? 'var(--accent-danger)' : 'var(--text-tertiary)',
                             }}
                         >
-                            Mês
-                        </button>
-                        <button
-                            onClick={() => setPeriodType('year')}
-                            className={cn(
-                                "px-4 py-1.5 rounded-md text-sm font-medium transition-all",
-                                periodType === 'year'
-                                    ? "shadow-sm"
-                                    : "opacity-60"
-                            )}
-                            style={{
-                                backgroundColor: periodType === 'year' ? 'var(--bg-secondary)' : 'transparent',
-                                color: periodType === 'year' ? 'var(--text-primary)' : 'var(--text-tertiary)',
-                            }}
-                        >
-                            Ano
-                        </button>
-                    </div>
-                </div>
-
-                {/* Toggle Despesas/Receitas */}
-                <div
-                    className="flex p-1 rounded-xl"
-                    style={{ backgroundColor: 'var(--bg-tertiary)' }}
-                >
-                    <button
-                        onClick={() => setViewType('expenses')}
-                        className={cn(
-                            "flex-1 py-2.5 rounded-lg font-medium transition-all",
-                            viewType === 'expenses'
-                                ? "shadow-sm"
-                                : "opacity-60"
-                        )}
-                        style={{
-                            backgroundColor: viewType === 'expenses' ? 'var(--accent-danger-bg)' : 'transparent',
-                            color: viewType === 'expenses' ? 'var(--accent-danger)' : 'var(--text-tertiary)',
-                        }}
-                    >
-                        <div className="flex items-center justify-center gap-2">
                             <ArrowDown className="w-4 h-4" />
                             Despesas
-                        </div>
-                    </button>
-                    <button
-                        onClick={() => setViewType('income')}
-                        className={cn(
-                            "flex-1 py-2.5 rounded-lg font-medium transition-all",
-                            viewType === 'income'
-                                ? "shadow-sm"
-                                : "opacity-60"
-                        )}
-                        style={{
-                            backgroundColor: viewType === 'income' ? 'var(--accent-success-bg)' : 'transparent',
-                            color: viewType === 'income' ? 'var(--accent-success)' : 'var(--text-tertiary)',
-                        }}
-                    >
-                        <div className="flex items-center justify-center gap-2">
+                        </button>
+                        <button
+                            onClick={() => setViewType('income')}
+                            className={cn(
+                                "flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all",
+                                viewType === 'income' ? "shadow-sm" : "opacity-60"
+                            )}
+                            style={{
+                                backgroundColor: viewType === 'income' ? 'var(--accent-success-bg)' : 'transparent',
+                                color: viewType === 'income' ? 'var(--accent-success)' : 'var(--text-tertiary)',
+                            }}
+                        >
                             <ArrowUp className="w-4 h-4" />
                             Receitas
-                        </div>
-                    </button>
+                        </button>
+                    </div>
                 </div>
 
-                {/* Card de Resumo */}
-                <div
-                    className="p-5 rounded-2xl"
-                    style={{ backgroundColor: 'var(--bg-secondary)' }}
-                >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p
-                                className="text-sm"
-                                style={{ color: 'var(--text-tertiary)' }}
+                {/* === CARDS DE RESUMO EM GRID === */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Card Despesas */}
+                    <div
+                        className="p-5 rounded-2xl"
+                        style={{ backgroundColor: 'var(--bg-secondary)' }}
+                    >
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
+                                    Total Despesas
+                                </p>
+                                <p
+                                    className="text-2xl font-bold mt-1"
+                                    style={{ color: 'var(--accent-danger)' }}
+                                >
+                                    {formatCurrency(totalExpenses)}
+                                </p>
+                            </div>
+                            <div
+                                className="p-3 rounded-xl"
+                                style={{ backgroundColor: 'var(--accent-danger-bg)' }}
                             >
-                                {viewType === 'expenses' ? 'Total de Despesas' : 'Total de Receitas'}
-                            </p>
-                            <p
-                                className="text-3xl font-bold mt-1"
+                                <TrendingDown className="w-5 h-5" style={{ color: 'var(--accent-danger)' }} />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Card Receitas */}
+                    <div
+                        className="p-5 rounded-2xl"
+                        style={{ backgroundColor: 'var(--bg-secondary)' }}
+                    >
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
+                                    Total Receitas
+                                </p>
+                                <p
+                                    className="text-2xl font-bold mt-1"
+                                    style={{ color: 'var(--accent-success)' }}
+                                >
+                                    {formatCurrency(totalIncome)}
+                                </p>
+                            </div>
+                            <div
+                                className="p-3 rounded-xl"
+                                style={{ backgroundColor: 'var(--accent-success-bg)' }}
+                            >
+                                <TrendingUp className="w-5 h-5" style={{ color: 'var(--accent-success)' }} />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Card Saldo */}
+                    <div
+                        className="p-5 rounded-2xl"
+                        style={{ backgroundColor: 'var(--bg-secondary)' }}
+                    >
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
+                                    Saldo do Período
+                                </p>
+                                <p
+                                    className="text-2xl font-bold mt-1"
+                                    style={{ color: balance >= 0 ? 'var(--accent-success)' : 'var(--accent-danger)' }}
+                                >
+                                    {balance >= 0 ? '+' : ''}{formatCurrency(balance)}
+                                </p>
+                            </div>
+                            <div
+                                className="p-3 rounded-xl"
                                 style={{
-                                    color: viewType === 'expenses'
-                                        ? 'var(--accent-danger)'
-                                        : 'var(--accent-success)',
+                                    backgroundColor: balance >= 0 ? 'var(--accent-success-bg)' : 'var(--accent-danger-bg)',
                                 }}
                             >
-                                {formatCurrency(currentTotal)}
-                            </p>
+                                {balance >= 0 ? (
+                                    <TrendingUp className="w-5 h-5" style={{ color: 'var(--accent-success)' }} />
+                                ) : (
+                                    <TrendingDown className="w-5 h-5" style={{ color: 'var(--accent-danger)' }} />
+                                )}
+                            </div>
                         </div>
-                        <div
-                            className="p-3 rounded-xl"
-                            style={{
-                                backgroundColor: viewType === 'expenses'
-                                    ? 'var(--accent-danger-bg)'
-                                    : 'var(--accent-success-bg)',
-                            }}
-                        >
-                            {viewType === 'expenses' ? (
-                                <TrendingDown
-                                    className="w-6 h-6"
-                                    style={{ color: 'var(--accent-danger)' }}
-                                />
-                            ) : (
-                                <TrendingUp
-                                    className="w-6 h-6"
-                                    style={{ color: 'var(--accent-success)' }}
-                                />
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Saldo */}
-                    <div
-                        className="mt-4 pt-4 border-t flex items-center justify-between"
-                        style={{ borderColor: 'var(--border-subtle)' }}
-                    >
-                        <span style={{ color: 'var(--text-tertiary)' }}>
-                            Saldo do mês
-                        </span>
-                        <span
-                            className="font-semibold"
-                            style={{
-                                color: balance >= 0 ? 'var(--accent-success)' : 'var(--accent-danger)',
-                            }}
-                        >
-                            {balance >= 0 ? '+' : ''}{formatCurrency(balance)}
-                        </span>
-                    </div>
-
-                    {/* Comparação com período anterior */}
-                    <div
-                        className="mt-3 pt-3 border-t flex items-center justify-between"
-                        style={{ borderColor: 'var(--border-subtle)' }}
-                    >
-                        <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                            vs. {periodType === 'month' ? 'mês anterior' : 'ano anterior'}
-                        </span>
-                        {(() => {
-                            // Mock: simulando variação (em produção, buscar dados reais)
-                            const previousTotal = currentTotal * (0.8 + Math.random() * 0.4);
-                            const variation = ((currentTotal - previousTotal) / previousTotal) * 100;
-                            const isNegative = variation < 0;
-                            const isExpense = viewType === 'expenses';
-                            // Para despesas: variação negativa é bom (gastou menos)
-                            // Para receitas: variação positiva é bom (ganhou mais)
-                            const isGood = isExpense ? isNegative : !isNegative;
-
-                            return (
-                                <span
-                                    className="text-sm font-medium px-2 py-0.5 rounded-full"
-                                    style={{
-                                        backgroundColor: isGood ? 'var(--accent-success-bg)' : 'var(--accent-danger-bg)',
-                                        color: isGood ? 'var(--accent-success)' : 'var(--accent-danger)',
-                                    }}
-                                >
-                                    {isNegative ? '' : '+'}{variation.toFixed(1)}%
-                                </span>
-                            );
-                        })()}
                     </div>
                 </div>
 
