@@ -98,21 +98,31 @@ export function TransactionSheet({
     const config = typeConfig[type];
     const title = mode === 'add' ? config.title : config.editTitle;
 
-    // Form state
+    // Helper para obter a data atual formatada (evita problema com SSR/prerendering)
+    const getTodayFormatted = () => format(new Date(), 'yyyy-MM-dd');
+
+    // Form state - data inicializa vazia para evitar erro de prerendering
     const [description, setDescription] = useState(initialData?.description || '');
     const [amount, setAmount] = useState(initialData?.amount?.toString() || '');
-    const [date, setDate] = useState(initialData?.date || format(new Date(), 'yyyy-MM-dd'));
+    const [date, setDate] = useState(initialData?.date || '');
     const [categoryId, setCategoryId] = useState(initialData?.categoryId || '');
     const [paymentMethodId, setPaymentMethodId] = useState(initialData?.paymentMethodId || '');
     const [profile, setProfile] = useState<'Leonardo' | 'Flavia' | ''>((initialData?.profile as 'Leonardo' | 'Flavia') || '');
     const [isPaid, setIsPaid] = useState(initialData?.isPaid || false);
+
+    // Define a data atual no cliente após montagem (evita erro de prerendering)
+    useEffect(() => {
+        if (!date && !initialData?.date) {
+            setDate(getTodayFormatted());
+        }
+    }, [date, initialData?.date]);
 
     // Reset form quando abre/fecha
     useEffect(() => {
         if (open && initialData) {
             setDescription(initialData.description || '');
             setAmount(initialData.amount?.toString() || '');
-            setDate(initialData.date || format(new Date(), 'yyyy-MM-dd'));
+            setDate(initialData.date || getTodayFormatted());
             setCategoryId(initialData.categoryId || '');
             setPaymentMethodId(initialData.paymentMethodId || '');
             setProfile((initialData.profile as 'Leonardo' | 'Flavia') || '');
@@ -121,7 +131,7 @@ export function TransactionSheet({
             // Reset ao fechar
             setDescription('');
             setAmount('');
-            setDate(format(new Date(), 'yyyy-MM-dd'));
+            setDate(getTodayFormatted());
             setCategoryId('');
             setPaymentMethodId('');
             setProfile('');
