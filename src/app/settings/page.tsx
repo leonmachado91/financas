@@ -1,9 +1,12 @@
 "use client";
 
 import { AppShell, BottomNav, PageContainer, TopBar } from '@/components/layout';
+import { SettingsDialog } from '@/components/settings/SettingsDialog';
+import { GlobalTransactionSheet } from '@/components/transaction/GlobalTransactionSheet';
 import { useCategories } from '@/hooks/useCategories';
 import { ChevronRight, CreditCard, FolderOpen, User } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 interface SettingsItemProps {
     icon: React.ElementType;
@@ -61,6 +64,20 @@ function SettingsItem({ icon: Icon, label, description, href, onClick, badge }: 
 export default function SettingsPage() {
     const { data: categories = [] } = useCategories();
 
+    // Estado para o dialog de configurações
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogTab, setDialogTab] = useState<'categories' | 'payment-methods'>('categories');
+
+    const openCategoriesDialog = () => {
+        setDialogTab('categories');
+        setDialogOpen(true);
+    };
+
+    const openPaymentMethodsDialog = () => {
+        setDialogTab('payment-methods');
+        setDialogOpen(true);
+    };
+
     return (
         <AppShell>
             <TopBar title="Configurações" />
@@ -98,11 +115,13 @@ export default function SettingsPage() {
                             label="Categorias"
                             description="Organize suas transações"
                             badge={`${categories.length}`}
+                            onClick={openCategoriesDialog}
                         />
                         <SettingsItem
                             icon={CreditCard}
                             label="Métodos de Pagamento"
                             description="Cartões, Pix, Dinheiro"
+                            onClick={openPaymentMethodsDialog}
                         />
                     </div>
                 </div>
@@ -118,7 +137,16 @@ export default function SettingsPage() {
                 </div>
             </PageContainer>
 
+            {/* Dialog de Configurações */}
+            <SettingsDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
+                defaultTab={dialogTab}
+            />
+
             <BottomNav />
+
+            <GlobalTransactionSheet />
         </AppShell>
     );
 }

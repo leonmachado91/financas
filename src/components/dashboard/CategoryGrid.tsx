@@ -12,8 +12,8 @@ import {
 interface Category {
     id: string;
     name: string;
-    icon?: string;
-    color?: string;
+    icon?: string | null;
+    color?: string | null;
 }
 
 interface CategoryGridProps {

@@ -4,18 +4,18 @@ import { BalanceCard } from '@/components/dashboard/BalanceCardNew';
 import { CategoryGrid } from '@/components/dashboard/CategoryGrid';
 import { CategoryTabs } from '@/components/dashboard/CategoryTabs';
 import { MiniStatsCard } from '@/components/dashboard/MiniStatsCard';
-import { OverdueAlert } from '@/components/dashboard/OverdueAlert';
-import { QuickActions } from '@/components/dashboard/QuickActions';
-import { TransactionGroup, TransactionRow, TransactionRowData } from '@/components/dashboard/TransactionRowNew';
-import { TransactionTable } from '@/components/dashboard/TransactionTable';
+import { SplitTransactionView } from '@/components/dashboard/SplitTransactionView';
+import { TransactionGroup, TransactionRowData } from '@/components/dashboard/TransactionRowNew';
 import { AppShell, BottomNav, PageContainer, TopBar } from '@/components/layout';
 import { EmptyState } from '@/components/shared';
-import { TransactionSheet } from '@/components/transaction/TransactionSheet';
+import { TransactionList } from '@/components/shared/TransactionList';
+import { GlobalTransactionSheet } from '@/components/transaction/GlobalTransactionSheet';
+import { FilterPill, FilterPillGroup } from '@/components/ui/filter-pill';
+import { useTransactionSheet } from '@/contexts/TransactionSheetContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useCategories } from '@/hooks/useCategories';
 import { transactionKeys, useTransactionMutations, useTransactionsByMonth } from '@/hooks/useTransactions';
-import { mapProfileToDb, transactionsService } from '@/services/transactionsService';
-import { Transaction } from '@/types';
+import { transactionsService } from '@/services/transactionsService';
 import { useQueryClient } from '@tanstack/react-query';
 import { addMonths, format, isToday, isYesterday, parseISO, startOfDay, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -41,15 +41,30 @@ function formatDateLabel(dateStr: string): string {
     }
 }
 
-// Componente para seção de atrasados com collapse
+// Lista unificada de transações atrasadas (cor amarela)
 function OverdueSection({
-    transactions,
+    expenseTransactions,
+    incomeTransactions,
     onTransactionClick,
 }: {
-    transactions: TransactionRowData[];
+    expenseTransactions: TransactionRowData[];
+    incomeTransactions: TransactionRowData[];
     onTransactionClick: (id: string) => void;
 }) {
     const [isOpen, setIsOpen] = useState(true);
+    const [filter, setFilter] = useState<'all' | 'income' | 'expense'>('all');
+
+    // Combinar todas as transações atrasadas
+    const allOverdue = [...expenseTransactions, ...incomeTransactions];
+
+    // Filtrar conforme seleção
+    const filteredTransactions = filter === 'all'
+        ? allOverdue
+        : filter === 'income'
+            ? incomeTransactions
+            : expenseTransactions;
+
+    if (allOverdue.length === 0) return null;
 
     return (
         <div
@@ -59,7 +74,7 @@ function OverdueSection({
                 borderColor: 'var(--accent-warning)',
             }}
         >
-            {/* Header clicável */}
+            {/* Header */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full p-4 flex items-center justify-between"
@@ -67,7 +82,7 @@ function OverdueSection({
                 <div className="flex items-center gap-2">
                     <AlertTriangle className="w-5 h-5" style={{ color: 'var(--accent-warning)' }} />
                     <span className="font-semibold" style={{ color: 'var(--accent-warning)' }}>
-                        Atrasados ({transactions.length})
+                        Atrasados ({allOverdue.length})
                     </span>
                 </div>
                 <motion.div
@@ -88,14 +103,53 @@ function OverdueSection({
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                     >
-                        <div className="px-4 pb-4 space-y-1">
-                            {transactions.map((t) => (
-                                <TransactionRow
-                                    key={t.id}
-                                    transaction={t}
-                                    onClick={() => onTransactionClick(t.id)}
-                                />
-                            ))}
+                        {/* Filtros usando FilterPill padronizado */}
+                        <div className="px-4 pb-2">
+                            <FilterPillGroup>
+                                <FilterPill
+                                    variant="warning"
+                                    selected={filter === 'all'}
+                                    onClick={() => setFilter('all')}
+                                    count={allOverdue.length}
+                                    size="sm"
+                                >
+                                    Todos
+                                </FilterPill>
+                                <FilterPill
+                                    variant="danger"
+                                    selected={filter === 'expense'}
+                                    onClick={() => setFilter('expense')}
+                                    count={expenseTransactions.length}
+                                    size="sm"
+                                >
+                                    A Pagar
+                                </FilterPill>
+                                <FilterPill
+                                    variant="success"
+                                    selected={filter === 'income'}
+                                    onClick={() => setFilter('income')}
+                                    count={incomeTransactions.length}
+                                    size="sm"
+                                >
+                                    A Receber
+                                </FilterPill>
+                            </FilterPillGroup>
+                        </div>
+
+                        {/* Lista usando TransactionList padronizado */}
+                        <div className="px-4 pb-4">
+                            <TransactionList
+                                transactions={filteredTransactions}
+                                onItemClick={onTransactionClick}
+                                itemProps={{
+                                    showCheckbox: false,
+                                    showIcon: true,
+                                    showDate: true,
+                                    showResponsible: true,
+                                    showMenu: false,
+                                    compact: true,
+                                }}
+                            />
                         </div>
                     </motion.div>
                 )}
@@ -108,13 +162,10 @@ export default function DashboardPage() {
     // Estado local da UI
     const [selectedMonth, setSelectedMonth] = useState<Date | null>(null);
     const [today, setToday] = useState<Date | null>(null);
-    const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
     const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
-    // Sheet states
-    const [sheetOpen, setSheetOpen] = useState(false);
-    const [sheetType, setSheetType] = useState<'income' | 'expense'>('expense');
-    const [sheetMode, setSheetMode] = useState<'add' | 'edit'>('add');
+    // Contexto do TransactionSheet
+    const { openAddSheet, openEditSheet } = useTransactionSheet();
 
     // Responsividade
     const isMobile = useIsMobile();
@@ -163,20 +214,31 @@ export default function DashboardPage() {
     }, [selectedMonth, queryClient]);
 
     // Mutations
-    const { create, update, delete: deleteMutation, isLoading: isMutating } = useTransactionMutations();
+    const { update, delete: deleteMutation } = useTransactionMutations();
 
-    // Calcular totais
-    const { income, expenses, balance, percentChange } = useMemo(() => {
-        let inc = 0;
-        let exp = 0;
+    // Calcular totais (real = pagas, estimado = todas)
+    const { realIncome, realExpenses, realBalance, estimatedBalance, percentChange } = useMemo(() => {
+        let realInc = 0;
+        let realExp = 0;
+        let estimatedInc = 0;
+        let estimatedExp = 0;
+
         transactions.forEach((t) => {
-            if (t.type === 'income') inc += t.amount;
-            else exp += t.amount;
+            const isPaid = t.status === 'paid';
+            if (t.type === 'income') {
+                estimatedInc += t.amount;
+                if (isPaid) realInc += t.amount;
+            } else {
+                estimatedExp += t.amount;
+                if (isPaid) realExp += t.amount;
+            }
         });
+
         return {
-            income: inc,
-            expenses: exp,
-            balance: inc - exp,
+            realIncome: realInc,
+            realExpenses: realExp,
+            realBalance: realInc - realExp,
+            estimatedBalance: estimatedInc - estimatedExp,
             percentChange: 0,
         };
     }, [transactions]);
@@ -230,73 +292,28 @@ export default function DashboardPage() {
         return groups;
     }, [mappedTransactions]);
 
-    // Transações atrasadas
-    const overdueTransactions = useMemo(() => {
-        if (!today) return [];
-        return mappedTransactions.filter((t) => {
-            if (t.isPaid || t.type === 'income') return false;
+    // Transações atrasadas separadas por tipo
+    const { overdueExpenses, overdueIncome, overdueTransactions } = useMemo(() => {
+        if (!today) return { overdueExpenses: [], overdueIncome: [], overdueTransactions: [] };
+
+        const allOverdue = mappedTransactions.filter((t) => {
+            if (t.isPaid) return false;
             const txDate = t.timestamp ? parseISO(t.timestamp) : null;
             return txDate && txDate < today;
         });
+
+        return {
+            overdueExpenses: allOverdue.filter((t) => t.type === 'expense'),
+            overdueIncome: allOverdue.filter((t) => t.type === 'income'),
+            overdueTransactions: allOverdue,
+        };
     }, [mappedTransactions, today]);
 
-    // Handlers
-    const openAddSheet = (type: 'income' | 'expense') => {
-        setSheetType(type);
-        setSheetMode('add');
-        setEditingTransaction(null);
-        setSheetOpen(true);
-    };
-
-    const openEditSheet = (transactionId: string) => {
+    // Handler para editar transação
+    const handleEditTransaction = (transactionId: string) => {
         const tx = transactions.find((t) => t.id === transactionId);
         if (tx) {
-            setEditingTransaction(tx);
-            setSheetType(tx.type);
-            setSheetMode('edit');
-            setSheetOpen(true);
-        }
-    };
-
-    const handleSaveTransaction = async (data: {
-        description: string;
-        amount: number;
-        date: string;
-        categoryId: string | null;
-        paymentMethodId: string | null;
-        profile: 'Leonardo' | 'Flavia' | null;
-        isPaid: boolean;
-    }) => {
-        try {
-            if (sheetMode === 'add') {
-                await create.mutateAsync({
-                    description: data.description,
-                    amount: data.amount,
-                    date: data.date,
-                    type: sheetType,
-                    status: data.isPaid ? 'paid' : 'pending',
-                    category_id: data.categoryId,
-                    payment_method_id: data.paymentMethodId,
-                    profile: mapProfileToDb(data.profile) as 'Leonardo' | 'Flavia' | null,
-                });
-                toast.success('Transação adicionada!');
-            } else if (editingTransaction) {
-                await update.mutateAsync({
-                    id: editingTransaction.id,
-                    updates: {
-                        description: data.description,
-                        amount: data.amount,
-                        date: data.date,
-                        status: data.isPaid ? 'paid' : 'pending',
-                        category_id: data.categoryId,
-                        payment_method_id: data.paymentMethodId,
-                        profile: mapProfileToDb(data.profile) as 'Leonardo' | 'Flavia' | null,
-                    },
-                });
-                toast.success('Transação atualizada!');
-            }
-        } catch (error) {
-            toast.error('Erro ao salvar transação');
+            openEditSheet(tx);
         }
     };
 
@@ -365,9 +382,10 @@ export default function DashboardPage() {
                     {/* Balance Card - ocupa 2 colunas em desktop */}
                     <div className="md:col-span-2">
                         <BalanceCard
-                            balance={balance}
-                            income={income}
-                            expenses={expenses}
+                            realBalance={realBalance}
+                            estimatedBalance={estimatedBalance}
+                            realIncome={realIncome}
+                            realExpenses={realExpenses}
                             selectedMonth={selectedMonth}
                             onPreviousMonth={handlePreviousMonth}
                             onNextMonth={handleNextMonth}
@@ -377,75 +395,54 @@ export default function DashboardPage() {
                     {/* Mini Stats - apenas desktop */}
                     <div className="hidden md:block">
                         <MiniStatsCard
-                            income={income}
-                            expenses={expenses}
+                            income={realIncome}
+                            expenses={realExpenses}
                             percentChange={percentChange}
                         />
                     </div>
                 </div>
 
-                {/* === SEÇÃO AÇÕES: Quick Actions + Alerta Atrasados === */}
-                <div className="flex flex-col md:flex-row md:items-center gap-4">
-                    {/* Quick Actions - mais compacto em desktop */}
-                    <QuickActions
-                        onAddIncome={() => openAddSheet('income')}
-                        onAddExpense={() => openAddSheet('expense')}
-                        className="md:flex-shrink-0"
-                    />
 
-                    {/* Alerta de Atrasados - compacto */}
-                    {overdueTransactions.length > 0 && (
-                        <OverdueAlert
-                            count={overdueTransactions.length}
-                            totalAmount={overdueTransactions.reduce((acc, t) => acc + t.amount, 0)}
-                            onClick={() => {
-                                // Scroll para seção de atrasados ou abrir modal
-                                if (overdueTransactions[0]) {
-                                    openEditSheet(overdueTransactions[0].id);
-                                }
-                            }}
-                            className="flex-1"
-                        />
-                    )}
-                </div>
-
-                {/* === Atrasados Expandido (apenas mobile) === */}
-                {isMobile && overdueTransactions.length > 0 && (
+                {/* === Atrasados === */}
+                {(overdueExpenses.length > 0 || overdueIncome.length > 0) && (
                     <OverdueSection
-                        transactions={overdueTransactions}
-                        onTransactionClick={openEditSheet}
+                        expenseTransactions={overdueExpenses}
+                        incomeTransactions={overdueIncome}
+                        onTransactionClick={handleEditTransaction}
                     />
                 )}
 
                 {/* === SEÇÃO TRANSAÇÕES === */}
                 <div className="space-y-4">
                     {/* Header com título e filtros */}
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div className="flex flex-col md:flex-row md:items-center gap-3">
                         <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
                             Transações
                         </h2>
 
-                        {/* Desktop: CategoryTabs inline */}
+                        {/* Desktop: CategoryTabs sempre à direita */}
                         {!isMobile && (
-                            <CategoryTabs
-                                categories={categories}
-                                selectedId={selectedCategoryId}
-                                onSelect={setSelectedCategoryId}
-                            />
-                        )}
+                            <div className="flex items-center gap-2 ml-auto">
+                                <CategoryTabs
+                                    categories={categories}
+                                    selectedId={selectedCategoryId}
+                                    onSelect={setSelectedCategoryId}
+                                />
 
-                        {/* Botão limpar filtro (se filtro ativo) */}
-                        {selectedCategoryId && (
-                            <button
-                                onClick={() => setSelectedCategoryId(null)}
-                                className="text-sm px-3 py-1.5 rounded-lg md:ml-2"
-                                style={{
-                                    color: 'var(--accent-lime)',
-                                    backgroundColor: 'var(--accent-lime-bg)',
-                                }}
-                            >
-                                Limpar filtro
-                            </button>
+                                {/* Botão limpar filtro (se filtro ativo) */}
+                                {selectedCategoryId && (
+                                    <button
+                                        onClick={() => setSelectedCategoryId(null)}
+                                        className="text-sm px-3 py-1.5 rounded-lg shrink-0"
+                                        style={{
+                                            color: 'var(--accent-lime)',
+                                            backgroundColor: 'var(--accent-lime-bg)',
+                                        }}
+                                    >
+                                        Limpar
+                                    </button>
+                                )}
+                            </div>
                         )}
                     </div>
 
@@ -474,52 +471,34 @@ export default function DashboardPage() {
                                 key={group.label}
                                 dateLabel={group.label}
                                 transactions={group.transactions}
-                                onTransactionClick={openEditSheet}
+                                onTransactionClick={handleEditTransaction}
                                 onTogglePaid={handleTogglePaid}
                                 onDelete={handleDeleteTransaction}
                             />
                         ))
                     ) : (
-                        // Desktop: Tabela com todas as transações
-                        <TransactionTable
+                        // Desktop: Split-View com Receitas à esquerda e Despesas à direita
+                        <SplitTransactionView
                             transactions={filteredTransactions.map(t => ({
                                 ...t,
                                 date: t.timestamp,
                             }))}
-                            onEdit={openEditSheet}
+                            onEdit={handleEditTransaction}
                             onDelete={handleDeleteTransaction}
                             onTogglePaid={handleTogglePaid}
+                            onAddIncome={() => openAddSheet('income')}
+                            onAddExpense={() => openAddSheet('expense')}
                         />
                     )}
                 </div>
             </PageContainer>
 
-            {/* Bottom Navigation - apenas mobile */}
-            <BottomNav onAddClick={() => openAddSheet('expense')} />
+            {/* Bottom Navigation com FAB */}
+            <BottomNav />
 
-            {/* Transaction Sheet */}
-            <TransactionSheet
-                open={sheetOpen}
-                onOpenChange={setSheetOpen}
-                type={sheetType}
-                mode={sheetMode}
-                initialData={
-                    editingTransaction
-                        ? {
-                            description: editingTransaction.description,
-                            amount: editingTransaction.amount,
-                            date: editingTransaction.date,
-                            categoryId: editingTransaction.category_id,
-                            paymentMethodId: editingTransaction.payment_method_id,
-                            profile: mapProfileFromDb(editingTransaction.profile),
-                            isPaid: editingTransaction.status === 'paid',
-                        }
-                        : undefined
-                }
-                categories={categories}
-                onSave={handleSaveTransaction}
-                isLoading={isMutating}
-            />
+            {/* Transaction Sheet Global */}
+            <GlobalTransactionSheet />
         </AppShell>
     );
 }
+

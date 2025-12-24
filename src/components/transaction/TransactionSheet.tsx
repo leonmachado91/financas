@@ -222,18 +222,15 @@ export function TransactionSheet({
                 </Select>
             </div>
 
-            {/* Data */}
+            {/* Data - DatePicker Customizado */}
             <div className="space-y-2">
                 <Label style={{ color: 'var(--text-secondary)' }}>Data</Label>
-                <Input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    style={{
-                        backgroundColor: 'var(--bg-tertiary)',
-                        borderColor: 'var(--border-subtle)',
-                        color: 'var(--text-primary)',
+                <DatePicker
+                    value={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
+                    onChange={(selectedDate) => {
+                        setDate(format(selectedDate, 'yyyy-MM-dd'));
                     }}
+                    placeholder="Selecionar data"
                 />
             </div>
 

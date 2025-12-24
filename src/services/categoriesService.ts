@@ -36,5 +36,19 @@ export const categoriesService = {
     if (error) {
         throw error;
     }
+  },
+
+  async update(id: string, updates: Partial<Omit<Category, 'id' | 'user_id'>>) {
+    const { data, error } = await supabase
+      .from('categories')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+        throw error;
+    }
+    return data as Category;
   }
 };

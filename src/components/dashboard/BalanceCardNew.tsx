@@ -8,12 +8,14 @@ import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Eye, EyeOff } from 'luci
 import { useState } from 'react';
 
 interface BalanceCardProps {
-    /** Saldo total */
-    balance: number;
-    /** Total de receitas do período */
-    income: number;
-    /** Total de despesas do período */
-    expenses: number;
+    /** Saldo real (apenas transações pagas) */
+    realBalance: number;
+    /** Saldo estimado (incluindo pendentes) */
+    estimatedBalance: number;
+    /** Total de receitas do período (pagas) */
+    realIncome: number;
+    /** Total de despesas do período (pagas) */
+    realExpenses: number;
     /** Mês selecionado */
     selectedMonth: Date;
     /** Callback para navegar ao mês anterior */
@@ -44,9 +46,10 @@ function formatCurrencyCompact(value: number): string {
  * Inclui navegação de mês integrada no topo do card.
  */
 export function BalanceCard({
-    balance,
-    income,
-    expenses,
+    realBalance,
+    estimatedBalance,
+    realIncome,
+    realExpenses,
     selectedMonth,
     onPreviousMonth,
     onNextMonth,
@@ -54,7 +57,8 @@ export function BalanceCard({
 }: BalanceCardProps) {
     const [showBalance, setShowBalance] = useState(true);
     const [direction, setDirection] = useState(0); // -1 = anterior, 1 = próximo
-    const isPositive = balance >= 0;
+    const isPositive = realBalance >= 0;
+    const hasEstimatedDiff = realBalance !== estimatedBalance;
 
     const handlePrevious = () => {
         setDirection(-1);
@@ -148,7 +152,7 @@ export function BalanceCard({
                 {/* Saldo Total Label + Eye Button */}
                 <div className="flex items-center justify-between mb-2">
                     <span className="text-black/60 text-sm font-medium">
-                        Saldo Total
+                        Saldo Real
                     </span>
                     <button
                         onClick={() => setShowBalance(!showBalance)}
@@ -162,22 +166,22 @@ export function BalanceCard({
                     </button>
                 </div>
 
-                {/* Main Balance */}
+                {/* Main Balance (Saldo Real) */}
                 <AnimatePresence mode="wait" custom={direction}>
                     <motion.h1
-                        key={balance}
+                        key={realBalance}
                         custom={direction}
                         variants={variants}
                         initial="enter"
                         animate="center"
                         exit="exit"
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        className="text-4xl md:text-5xl font-bold text-black mb-4 tracking-tight"
+                        className="text-4xl md:text-5xl font-bold text-black mb-1 tracking-tight"
                     >
                         {showBalance ? (
                             <>
                                 {!isPositive && '-'}
-                                {formatCurrency(balance)}
+                                {formatCurrency(realBalance)}
                             </>
                         ) : (
                             'R$ •••••'
@@ -185,10 +189,20 @@ export function BalanceCard({
                     </motion.h1>
                 </AnimatePresence>
 
+                {/* Saldo Estimado (se diferente do real) */}
+                {hasEstimatedDiff && showBalance && (
+                    <div className="mb-4">
+                        <span className="text-black/40 text-sm">
+                            Estimado: {formatCurrency(estimatedBalance)}
+                        </span>
+                    </div>
+                )}
+                {!hasEstimatedDiff && <div className="mb-4" />}
+
                 {/* Income/Expense Row */}
                 <AnimatePresence mode="wait" custom={direction}>
                     <motion.div
-                        key={`income-${income}-expense-${expenses}`}
+                        key={`income-${realIncome}-expense-${realExpenses}`}
                         custom={direction}
                         variants={variants}
                         initial="enter"
@@ -202,7 +216,7 @@ export function BalanceCard({
                                 <ArrowUp className="w-3 h-3 text-black/70" />
                             </div>
                             <span className="text-black/80 text-sm font-medium">
-                                {showBalance ? formatCurrencyCompact(income) : '•••'}
+                                {showBalance ? formatCurrencyCompact(realIncome) : '•••'}
                             </span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -210,7 +224,7 @@ export function BalanceCard({
                                 <ArrowDown className="w-3 h-3 text-black/70" />
                             </div>
                             <span className="text-black/80 text-sm font-medium">
-                                {showBalance ? formatCurrencyCompact(expenses) : '•••'}
+                                {showBalance ? formatCurrencyCompact(realExpenses) : '•••'}
                             </span>
                         </div>
                     </motion.div>

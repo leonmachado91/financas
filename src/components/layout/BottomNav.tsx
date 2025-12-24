@@ -1,14 +1,10 @@
 "use client";
 
+import { AddTransactionPopover } from '@/components/shared/AddTransactionPopover';
 import { cn } from '@/lib/utils';
-import { BarChart3, Home, Plus, Settings } from 'lucide-react';
+import { BarChart3, Home, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
-interface BottomNavProps {
-    /** Callback quando FAB é clicado */
-    onAddClick?: () => void;
-}
 
 interface NavItemProps {
     href: string;
@@ -35,12 +31,14 @@ function NavItem({ href, icon: Icon, label, isActive }: NavItemProps) {
 }
 
 /**
- * BottomNav - Navegação inferior estilo mobile
+ * BottomNav - Navegação inferior com FAB central
  * 
- * Inclui FAB central verde/lime para adicionar transações.
- * Escondida em desktop (md:hidden).
+ * Mobile: Barra fixa no fundo com navegação + FAB central
+ * Desktop: FAB flutuante no canto inferior direito
+ * 
+ * Usa AddTransactionPopover para garantir consistência visual.
  */
-export function BottomNav({ onAddClick }: BottomNavProps) {
+export function BottomNav() {
     const pathname = usePathname();
 
     const navItems = [
@@ -51,62 +49,68 @@ export function BottomNav({ onAddClick }: BottomNavProps) {
     const settingsItem = { href: '/settings', icon: Settings, label: 'Config' };
 
     return (
-        <nav
-            className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
-            style={{ paddingBottom: 'var(--safe-area-bottom)' }}
-        >
-            {/* Background com blur */}
-            <div
-                className="absolute inset-0 border-t"
-                style={{
-                    backgroundColor: 'var(--bg-secondary)',
-                    borderColor: 'var(--border-subtle)',
-                    opacity: 0.98
-                }}
-            />
-
-            <div className="relative h-16 flex items-center justify-around px-4">
-                {/* Items da esquerda */}
-                {navItems.map((item) => (
-                    <NavItem
-                        key={item.href}
-                        href={item.href}
-                        icon={item.icon}
-                        label={item.label}
-                        isActive={pathname === item.href}
-                    />
-                ))}
-
-                {/* FAB Central */}
-                <div className="relative -mt-8">
-                    <button
-                        onClick={onAddClick}
-                        className="w-14 h-14 rounded-full flex items-center justify-center transition-transform active:scale-95"
-                        style={{
-                            background: 'var(--gradient-lime)',
-                            boxShadow: 'var(--shadow-lime)'
-                        }}
-                    >
-                        <Plus className="w-7 h-7 text-black" strokeWidth={2.5} />
-                    </button>
-                    {/* Subtle glow effect */}
-                    <div
-                        className="absolute inset-0 rounded-full blur-xl opacity-40 -z-10"
-                        style={{ background: 'var(--accent-lime)' }}
-                    />
-                </div>
-
-                {/* Item da direita */}
-                <NavItem
-                    href={settingsItem.href}
-                    icon={settingsItem.icon}
-                    label={settingsItem.label}
-                    isActive={pathname === settingsItem.href}
+        <>
+            {/* === MOBILE: Barra de navegação completa === */}
+            <nav
+                className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
+                style={{ paddingBottom: 'var(--safe-area-bottom)' }}
+            >
+                {/* Background com blur */}
+                <div
+                    className="absolute inset-0 border-t"
+                    style={{
+                        backgroundColor: 'var(--bg-secondary)',
+                        borderColor: 'var(--border-subtle)',
+                        opacity: 0.98
+                    }}
                 />
 
-                {/* Spacer para balancear o layout */}
-                <div className="w-16" />
+                <div className="relative h-16 flex items-center justify-around px-4">
+                    {/* Items da esquerda */}
+                    {navItems.map((item) => (
+                        <NavItem
+                            key={item.href}
+                            href={item.href}
+                            icon={item.icon}
+                            label={item.label}
+                            isActive={pathname === item.href}
+                        />
+                    ))}
+
+                    {/* FAB Central com Popover */}
+                    <div className="relative -mt-8">
+                        <AddTransactionPopover side="top" align="center" />
+
+                        {/* Subtle glow effect */}
+                        <div
+                            className="absolute inset-0 rounded-full blur-xl opacity-40 -z-10 pointer-events-none"
+                            style={{ background: 'var(--accent-lime)' }}
+                        />
+                    </div>
+
+                    {/* Item da direita */}
+                    <NavItem
+                        href={settingsItem.href}
+                        icon={settingsItem.icon}
+                        label={settingsItem.label}
+                        isActive={pathname === settingsItem.href}
+                    />
+
+                    {/* Spacer para balancear o layout */}
+                    <div className="w-16" />
+                </div>
+            </nav>
+
+            {/* === DESKTOP: FAB flutuante no canto === */}
+            <div className="hidden md:block fixed bottom-6 right-6 z-50">
+                <AddTransactionPopover side="top" align="end" />
+
+                {/* Subtle glow effect */}
+                <div
+                    className="absolute inset-0 rounded-full blur-xl opacity-40 -z-10 pointer-events-none"
+                    style={{ background: 'var(--accent-lime)' }}
+                />
             </div>
-        </nav>
+        </>
     );
 }

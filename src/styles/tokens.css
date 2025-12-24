@@ -26,13 +26,19 @@
   --accent-danger-muted: #DC2626;
   --accent-danger-bg: rgba(239, 68, 68, 0.12);
 
-  --accent-warning: #F59E0B;
-  --accent-warning-muted: #D97706;
-  --accent-warning-bg: rgba(245, 158, 11, 0.12);
+  --accent-warning: #EAB308;
+  --accent-warning-muted: #CA8A04;
+  --accent-warning-bg: rgba(234, 179, 8, 0.12);
 
   --accent-info: #3B82F6;
   --accent-info-muted: #2563EB;
   --accent-info-bg: rgba(59, 130, 246, 0.12);
+
+  /* ===== FILTER PILL TOKENS ===== */
+  --pill-py: 0.375rem;         /* 6px */
+  --pill-px: 0.75rem;          /* 12px */
+  --pill-font-size: 0.8125rem; /* 13px */
+  --pill-radius: 9999px;
 
   /* ===== CATEGORY COLORS ===== */
   --cat-blue: #3B82F6;

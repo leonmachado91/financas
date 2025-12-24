@@ -2,12 +2,13 @@
 
 import { AppShell, BottomNav, PageContainer, TopBar } from '@/components/layout';
 import { CategoryDonut, CategoryLegend, EvolutionChart } from '@/components/stats';
+import { GlobalTransactionSheet } from '@/components/transaction/GlobalTransactionSheet';
 import { useCategories } from '@/hooks/useCategories';
 import { useTransactionsByMonth } from '@/hooks/useTransactions';
 import { cn } from '@/lib/utils';
-import { format, subMonths } from 'date-fns';
+import { addMonths, format, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { ArrowDown, ArrowUp, Loader2, TrendingDown, TrendingUp } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Loader2, TrendingDown, TrendingUp } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 type ViewType = 'expenses' | 'income';
@@ -107,6 +108,19 @@ export default function StatsPage() {
 
     const currentTotal = viewType === 'expenses' ? totalExpenses : totalIncome;
 
+    // Handlers de navegação de mês
+    const handlePreviousMonth = () => {
+        if (selectedDate) {
+            setSelectedDate(subMonths(selectedDate, 1));
+        }
+    };
+
+    const handleNextMonth = () => {
+        if (selectedDate) {
+            setSelectedDate(addMonths(selectedDate, 1));
+        }
+    };
+
     // Loading state
     if (!selectedDate || isLoading) {
         return (
@@ -125,10 +139,20 @@ export default function StatsPage() {
             <PageContainer className="space-y-6">
                 {/* === HEADER: Período e Toggle === */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    {/* Título e período */}
-                    <div className="flex items-center gap-4">
+                    {/* Título e navegação de período */}
+                    <div className="flex items-center gap-2">
+                        {/* Botão mês anterior */}
+                        <button
+                            onClick={handlePreviousMonth}
+                            className="p-2 rounded-lg transition-colors hover:opacity-80"
+                            style={{ backgroundColor: 'var(--bg-tertiary)' }}
+                            aria-label="Mês anterior"
+                        >
+                            <ChevronLeft className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
+                        </button>
+
                         <h1
-                            className="text-2xl font-bold capitalize"
+                            className="text-2xl font-bold capitalize min-w-[180px] text-center"
                             style={{ color: 'var(--text-primary)' }}
                         >
                             {periodType === 'month'
@@ -136,6 +160,16 @@ export default function StatsPage() {
                                 : format(selectedDate, 'yyyy', { locale: ptBR })
                             }
                         </h1>
+
+                        {/* Botão próximo mês */}
+                        <button
+                            onClick={handleNextMonth}
+                            className="p-2 rounded-lg transition-colors hover:opacity-80"
+                            style={{ backgroundColor: 'var(--bg-tertiary)' }}
+                            aria-label="Próximo mês"
+                        >
+                            <ChevronRight className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
+                        </button>
 
                         {/* Toggle Mês/Ano - inline */}
                         <div
@@ -341,6 +375,8 @@ export default function StatsPage() {
             </PageContainer>
 
             <BottomNav />
+
+            <GlobalTransactionSheet />
         </AppShell>
     );
 }

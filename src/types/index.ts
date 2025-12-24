@@ -22,12 +22,17 @@ export interface Category {
     name: string;
     type: 'income' | 'expense';
     user_id: string;
+    icon?: string | null;
+    color?: string | null;
 }
 
 export interface PaymentMethod {
     id: string;
     name: string;
     user_id: string;
+    icon?: string | null;
+    color?: string | null;
+    details?: Record<string, unknown> | null;
 }
 
 export interface AppState {
